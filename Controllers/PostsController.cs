@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CarShop.Models;
+using CarShop.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarShop.Controllers
@@ -7,34 +9,43 @@ namespace CarShop.Controllers
     [ApiController]
     public class PostsController : ControllerBase
     {
-        [HttpPost]
-        public object Create(object model)
-        {
+        private IPostsService _postsService;
 
+        public PostsController(IPostsService postsService)
+        {
+            _postsService = postsService;
+        }
+
+        [HttpPost]
+        public PostModel Create(PostModel model)
+        {
+            return _postsService.Create(model);
         }
 
         [HttpPatch]
-        public object Update(object model)
+        public PostModel Update(PostModel model)
         {
-
+            return _postsService.Update(model);
         }
 
         [HttpGet("{id}")]
-        public object Get(int id)
+        public PostModel Get(int id)
         {
-
+            return _postsService.Get(id);
         }
 
         [HttpGet]
-        public object GetAll()
+        public IEnumerable<PostModel> GetAll()
         {
-
+            return _postsService.GetAll();
         }
 
         [HttpDelete("{id}")]
-        public object Delete(int id)
+        public IActionResult Delete(int id)
         {
+            _postsService.Delete(id);
 
+            return Ok();
         }
     }
 }

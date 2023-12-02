@@ -1,5 +1,7 @@
 using CarShop.Data;
 using CarShop.Models;
+using CarShop.Services;
+using CarShop.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
@@ -24,6 +26,9 @@ builder.Services.AddAuthentication()
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddTransient<IPostsService, PostsService>();
+builder.Services.AddSingleton<PostsDataContext>();
 
 var app = builder.Build();
 
