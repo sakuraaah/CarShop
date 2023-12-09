@@ -21,6 +21,7 @@ export const FormItem = (props) => {
           &.ant-form-item-required {
             &:after {
               display: inline !important;
+              visibility: visible !important;
               content: '*';
               color: red;
             }

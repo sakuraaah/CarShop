@@ -11,6 +11,7 @@ export * from './icon';
 export * from './input';
 export * from './label';
 export * from './labelFormItem';
+export * from './loader';
 export * from './modal';
 export * from './select';
 export * from './sideBySide';

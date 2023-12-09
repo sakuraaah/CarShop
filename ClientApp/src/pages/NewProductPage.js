@@ -20,7 +20,7 @@ export const NewProductPage = () => {
       <CrudForm 
         form={form}
         url={'api/posts'}
-        label={'Create post'}
+        formLabel={'Create post'}
       >        
         <StyledWrapper>
           <Label label={'Post info:'} extraBold />

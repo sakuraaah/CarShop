@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { 
+  Alert, 
   Button, 
   Form, 
   Label,
   LabelFormItem,
+  Loader,
 } from '../../ui';
 import { 
   ButtonList,
@@ -17,10 +19,12 @@ import useQueryApiClient from '../../utils/useQueryApiClient';
 export const CrudForm = ({
   form,
   url,
-  label,
+  formLabel,
   children
 }) => {
-  const { id } = useParams();
+  const { id } = useParams()
+  const [successText, setSuccessText] = useState()
+  const [errorText, setErrorText] = useState()
 
   const onSubmit = async (updateStatus, status = 'Confirmed') => {
     try {
@@ -38,6 +42,12 @@ export const CrudForm = ({
     request: {
       url: url,
       method: 'POST'
+    },
+    onSuccess: (response) => {
+      setSuccessText(response.text ?? 'Ieraksts ir veiksmīgi izveidots.'); // TODO
+    },
+    onError: (error) => {
+      setErrorText(error.text); // TODO
     }
   });
 
@@ -45,30 +55,50 @@ export const CrudForm = ({
     <StyledPage>
       <Form form={form} >
         <FormHeader>
-          <Label label={label} extraBold />
+          <Label label={formLabel} extraBold />
           <LabelFormItem 
             label={'Status'} 
             labelValue={''}
           />
         </FormHeader>
-        
-        {children}
 
-        <StyledWrapper>
-          <ButtonList>
-            <Button 
-              htmlType="submit" 
-              onClick={() => onSubmit(false)} 
-              type="primary" 
-              label={'Save'} 
-            />
-            <Button 
-              htmlType="submit" 
-              onClick={() => onSubmit(false)} 
-              label={'Submit'} 
-            />
-          </ButtonList>
-        </StyledWrapper>
+        <Loader loading={createLoading} >
+        
+          { successText && 
+            <Alert 
+              message={successText}
+              type="info"
+              style={{ marginBottom: "20px" }}
+            /> 
+          }
+
+          { 
+            errorText && 
+            <Alert 
+              message={errorText}
+              type="error"
+              style={{ marginBottom: "20px" }}
+            /> 
+          }
+
+          {children}
+
+          <StyledWrapper>
+            <ButtonList>
+              <Button 
+                htmlType="submit" 
+                onClick={() => onSubmit(false)} 
+                type="primary" 
+                label={'Save'} 
+              />
+              <Button 
+                htmlType="submit" 
+                onClick={() => onSubmit(false)} 
+                label={'Submit'} 
+              />
+            </ButtonList>
+          </StyledWrapper>
+        </Loader>
       </Form>
     </StyledPage>
   )
