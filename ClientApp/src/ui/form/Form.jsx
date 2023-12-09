@@ -3,9 +3,7 @@ import { Form as AntdForm } from 'antd';
 
 export const Form = (props) => {
   const children = props.children
-
-  delete props.children
-
+  
   return (
     <AntdForm {...props} >
       {children}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClassNameUtil } from 'utils/className';
+import { ClassNameUtil } from '../../utils/className';
 
 export const Icon = ({  // TODO
   className = '',

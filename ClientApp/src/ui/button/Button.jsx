@@ -3,6 +3,8 @@ import { Button as AntdButton } from 'antd';
 
 export const Button = (props) => {
   return (
-    <AntdButton {...props} />
+    <AntdButton {...props} >
+      {props.label}
+    </AntdButton>
   )
 }

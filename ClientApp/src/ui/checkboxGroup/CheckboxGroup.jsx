@@ -1,5 +1,5 @@
 import { Checkbox as AntdCheckbox, Form } from 'antd';
-import { Checkbox } from 'ui';
+import { Checkbox } from '../checkbox';
 import React from 'react';
 
 export const CheckboxGroup = (props) => {
@@ -13,12 +13,12 @@ export const CheckboxGroup = (props) => {
 
   const items = props.options
 
-  delete props.name
-  delete props.label
-  delete props.rules
-  delete props.className
-  delete props.style
-  delete props.options
+  // delete props.name
+  // delete props.label
+  // delete props.rules
+  // delete props.className
+  // delete props.style
+  // delete props.options
 
   return (
     <Form.Item {...formItemProps} >

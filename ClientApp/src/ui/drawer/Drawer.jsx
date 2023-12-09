@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from '../icon';
 import { Drawer as AntdDrawer } from 'antd';
 
 export const Drawer = (props) => {
@@ -7,7 +8,7 @@ export const Drawer = (props) => {
   return (
     <AntdDrawer
       {...props}
-      closeIcon={<Icon icon="times" faBase="far" />}
+      // closeIcon={<Icon icon="times" faBase="far" />}
       getContainer={() => app}
     />
   );

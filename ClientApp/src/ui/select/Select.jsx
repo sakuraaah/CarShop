@@ -12,12 +12,11 @@ export const Select = (props) => {
 
   const children = props.children
 
-  delete props.name
-  delete props.label
-  delete props.rules
-  delete props.className
-  delete props.style
-  delete props.children
+  // delete props.name
+  // delete props.label
+  // delete props.rules
+  // delete props.className
+  // delete props.style
 
   return (
     <Form.Item {...formItemProps} >

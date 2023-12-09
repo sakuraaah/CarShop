@@ -10,11 +10,11 @@ export const DatePicker = (props) => {
     style: props.style
   }
 
-  delete props.name
-  delete props.label
-  delete props.rules
-  delete props.className
-  delete props.style
+  // delete props.name
+  // delete props.label
+  // delete props.rules
+  // delete props.className
+  // delete props.style
 
   return (
     <Form.Item {...formItemProps} >

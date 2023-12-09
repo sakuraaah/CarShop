@@ -4,8 +4,6 @@ import { Modal as AntdModal } from 'antd';
 export const Modal = (props) => {
   const children = props.children
 
-  delete props.children
-
   return (
     <AntdModal {...props} >
       {children}
