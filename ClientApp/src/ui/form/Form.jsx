@@ -5,7 +5,11 @@ export const Form = (props) => {
   const children = props.children
   
   return (
-    <AntdForm {...props} >
+    <AntdForm 
+      {...props}
+      layout="vertical"
+      validateMessages={{ required: 'Lauks ir obligāts' }}
+    >
       {children}
     </AntdForm>
   );

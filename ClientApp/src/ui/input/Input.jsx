@@ -1,5 +1,6 @@
 import React from 'react';
-import { Input as AntdInput, Form } from 'antd';
+import { Input as AntdInput } from 'antd';
+import { FormItem } from '../../ui/formItem'
 
 export const Input = (props) => {
   const formItemProps = {
@@ -17,8 +18,11 @@ export const Input = (props) => {
   // delete props.style
 
   return (
-    <Form.Item {...formItemProps} >
-      <AntdInput {...props} />
-    </Form.Item>
+    <FormItem {...formItemProps} >
+      <AntdInput 
+        { ...props } 
+        size={props.size ?? 'large'}
+      />
+    </FormItem>
   );
 };

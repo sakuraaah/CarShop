@@ -1,5 +1,6 @@
 import React from 'react';
-import { DatePicker as AntdDatePicker, Form } from 'antd';
+import { DatePicker as AntdDatePicker} from 'antd';
+import { FormItem } from '../../ui/formItem'
 
 export const DatePicker = (props) => {
   const formItemProps = {
@@ -17,8 +18,8 @@ export const DatePicker = (props) => {
   // delete props.style
 
   return (
-    <Form.Item {...formItemProps} >
+    <FormItem {...formItemProps} >
       <AntdDatePicker {...props} />
-    </Form.Item>
+    </FormItem>
   )
 }

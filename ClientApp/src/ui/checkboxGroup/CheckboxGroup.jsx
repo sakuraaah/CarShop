@@ -1,6 +1,7 @@
-import { Checkbox as AntdCheckbox, Form } from 'antd';
-import { Checkbox } from '../checkbox';
 import React from 'react';
+import { Checkbox as AntdCheckbox } from 'antd';
+import { Checkbox } from '../checkbox';
+import { FormItem } from '../../ui/formItem'
 
 export const CheckboxGroup = (props) => {
   const formItemProps = {
@@ -21,7 +22,7 @@ export const CheckboxGroup = (props) => {
   // delete props.options
 
   return (
-    <Form.Item {...formItemProps} >
+    <FormItem {...formItemProps} >
       <AntdCheckbox.Group {...props} >
         {items
           ? items.map((checkbox) => {
@@ -35,6 +36,6 @@ export const CheckboxGroup = (props) => {
             })
           : 'TODO No items found'}
       </AntdCheckbox.Group>
-    </Form.Item>
+    </FormItem>
   )
 }

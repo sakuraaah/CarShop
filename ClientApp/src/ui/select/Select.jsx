@@ -1,5 +1,6 @@
 import React from 'react';
 import { Select as AntdSelect, Form } from 'antd';
+import { FormItem } from '../../ui/formItem'
 
 export const Select = (props) => {
   const formItemProps = {
@@ -19,10 +20,10 @@ export const Select = (props) => {
   // delete props.style
 
   return (
-    <Form.Item {...formItemProps} >
+    <FormItem {...formItemProps} >
       <AntdSelect {...props} >
         {children}
       </AntdSelect>
-    </Form.Item>
+    </FormItem>
   );
 };
