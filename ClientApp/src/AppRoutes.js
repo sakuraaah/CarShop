@@ -1,8 +1,8 @@
 import ApiAuthorzationRoutes from './components/api-authorization/ApiAuthorizationRoutes';
-import { Counter } from "./components/pages/Counter";
-import { FetchData } from "./components/pages/FetchData";
-import { Home } from "./components/pages/Home";
-import { NewProductPage } from "./components/pages/NewProductPage";
+import { Counter } from "./pages/Counter";
+import { FetchData } from "./pages/FetchData";
+import { Home } from "./pages/Home";
+import { NewProductPage } from "./pages/NewProductPage";
 
 const AppRoutes = [
   {
