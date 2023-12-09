@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import useHandleError from './useHandleError';
+import authService from '../components/api-authorization/AuthorizeService'
 
 const useQueryApiClient = ({
   request, 
@@ -10,10 +11,10 @@ const useQueryApiClient = ({
   enabled = true, 
   dontShowMessages = false 
 }) => {
-  const [receivedData, setReceivedData] = useState<any>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSuccess, setIsSuccess] = useState<boolean>(false);
-  const [isError, setIsError] = useState<boolean>(false);
+  const [receivedData, setReceivedData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   const [handleError] = useHandleError();
 
@@ -83,7 +84,7 @@ const useQueryApiClient = ({
 
     setIsLoading(true);
 
-    const token = getToken()
+    const token = await authService.getAccessToken();
 
     const requestConfig = {
       headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
