@@ -13,5 +13,6 @@ namespace CarShop.Data
         {
 
         }
+        public DbSet<RentSubmission> RentSubmissions { get; set; }
     }
 }

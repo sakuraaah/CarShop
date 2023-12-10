@@ -1,6 +1,4 @@
-﻿using CarShop.Models;
-
-namespace CarShop.Data
+﻿namespace CarShop.Data
 {
     public class PostsDataContext
     {

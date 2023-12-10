@@ -27,6 +27,7 @@ builder.Services.AddAuthentication()
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+builder.Services.AddScoped<IRentSubmissionRepository, RentSubmissionRepository>();
 builder.Services.AddTransient<IPostsService, PostsService>();
 builder.Services.AddSingleton<PostsDataContext>();
 

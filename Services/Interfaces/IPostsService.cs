@@ -1,4 +1,4 @@
-﻿using CarShop.Models;
+﻿using CarShop.Data;
 
 namespace CarShop.Services.Interfaces
 {

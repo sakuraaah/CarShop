@@ -1,4 +1,4 @@
-﻿namespace CarShop.Models
+﻿namespace CarShop.Data
 {
     public class PostModel
     {

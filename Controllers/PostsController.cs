@@ -1,4 +1,4 @@
-﻿using CarShop.Models;
+﻿using CarShop.Data;
 using CarShop.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
