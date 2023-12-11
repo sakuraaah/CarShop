@@ -36,7 +36,8 @@ namespace CarShop.Controllers
                 {
                     AplNr = dto.AplNr,
                     RegNr = dto.RegNr,
-                    Mark = dto.Mark,
+                    CategoryId = dto.CategoryId,
+                    MarkId = dto.MarkId,
                     Model = dto.Model,
                     Mileage = dto.Mileage,
                     Year = dto.Year,
@@ -67,7 +68,8 @@ namespace CarShop.Controllers
 
                 rentSubmission.AplNr = dto.AplNr;
                 rentSubmission.RegNr = dto.RegNr;
-                rentSubmission.Mark = dto.Mark;
+                rentSubmission.CategoryId = dto.CategoryId;
+                rentSubmission.MarkId = dto.MarkId;
                 rentSubmission.Model = dto.Model;
                 rentSubmission.Mileage = dto.Mileage;
                 rentSubmission.Year = dto.Year;
