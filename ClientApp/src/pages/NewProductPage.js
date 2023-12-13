@@ -19,7 +19,7 @@ export const NewProductPage = () => {
     <StyledPage>
       <CrudForm 
         form={form}
-        url={'api/posts'}
+        url={'api/rent-submissions'}
         formLabel={'Create post'}
       >        
         <StyledWrapper>
@@ -29,18 +29,62 @@ export const NewProductPage = () => {
 
           <SideBySide
             left={
-              <>
-                <Input
-                  name="header"
-                  label={'Header'}
-                  rules={[{ required: true }]}
-                />
-                <Input
-                  name="text"
-                  label={'Text'}
-                  rules={[{ required: true }]}
-                />
-              </>
+              <Input
+                name="AplNr"
+                label={'Apliecības numurs'}
+                rules={[{ required: true }]}
+              />
+            }
+            right={
+              <Input
+                name="RegNr"
+                label={'Reģistrācijas numurs'}
+                rules={[{ required: true }]}
+              />
+            }
+          />
+
+          <SideBySide
+            left={
+              <Input
+                name="CategoryId"
+                label={'Kategorija'}
+                rules={[{ required: true }]}
+              />
+            }
+          />
+
+          <SideBySide
+            left={
+              <Input
+                name="MarkId"
+                label={'Marka'}
+                rules={[{ required: true }]}
+              />
+            }
+            right={
+              <Input
+                name="Model"
+                label={'Modelis'}
+                rules={[{ required: true }]}
+              />
+            }
+          />
+
+          <SideBySide
+            left={
+              <Input
+                name="Year"
+                label={'Gads'}
+                rules={[{ required: true }]}
+              />
+            }
+            right={
+              <Input
+                name="Mileage"
+                label={'Nobraukums'}
+                rules={[{ required: true }]}
+              />
             }
           />
         </StyledWrapper>

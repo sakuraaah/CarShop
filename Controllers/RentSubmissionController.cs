@@ -1,19 +1,26 @@
 ﻿using CarShop.Data;
 using CarShop.Dtos;
+using CarShop.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CarShop.Controllers
 {
+    [Authorize]
     [Route("api/rent-submissions")]
     [ApiController]
     public class RentSubmissionController : ControllerBase
     {
         private readonly IRentSubmissionRepository _rentSubmissionRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public RentSubmissionController(IRentSubmissionRepository rentSubmissionRepository)
+        public RentSubmissionController(IRentSubmissionRepository rentSubmissionRepository, UserManager<ApplicationUser> userManager)
         {
             _rentSubmissionRepository = rentSubmissionRepository;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -28,19 +35,24 @@ namespace CarShop.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] RentSubmissionDto dto)
+        public async Task<IActionResult> Create([FromBody] RentSubmissionDto dto)
         {
+            ClaimsPrincipal currentUser = this.User;
+            var currentUserID = currentUser.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var curUser = await _userManager.FindByIdAsync(currentUserID);
             var response = new ApiResponseDto(() =>
             {
                 var rentSubmission = new RentSubmission
                 {
                     AplNr = dto.AplNr,
                     RegNr = dto.RegNr,
+                    User = curUser,
                     CategoryId = dto.CategoryId,
                     MarkId = dto.MarkId,
                     Model = dto.Model,
                     Mileage = dto.Mileage,
                     Year = dto.Year,
+                    Status = "Draft",
                 };
 
                 return _rentSubmissionRepository.Create(rentSubmission);
