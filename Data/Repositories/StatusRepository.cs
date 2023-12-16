@@ -11,6 +11,12 @@ namespace CarShop.Data
             return _context.Statuses;
         }
 
+        public IQueryable<Status> GetByName(string[] statuses)
+        {
+            return GetAll()
+                .Where(x => statuses.Contains(x.Name));
+        }
+
         public Status? Create(Status status)
         {
             status = _context.Statuses.Add(status).Entity;
