@@ -6,13 +6,12 @@ namespace CarShop.Data
     public interface IRentSubmissionRepository
     {
         IQueryable<RentSubmission> GetAll();
-        IQueryable<RentSubmissionListDto> GetSellerList(ApplicationUser user);
-        IQueryable<RentSubmissionListDto> GetAdminList();
-        RentSubmission? Create(RentSubmission rentSubmission);
+        RentSubmissionListResponseDto GetList(RentSubmissionQueryDto query, bool isAdmin = false);
+        bool Exists(string aplNr, string regNr, int? id);
+        RentSubmissionResponseDto? Create(RentSubmission rentSubmission);
         RentSubmission? Get(int id, ApplicationUser? user);
-        RentSubmission? GetForSeller(int id, ApplicationUser user);
-        RentSubmission? GetForAdmin(int id);
-        RentSubmission? Update(RentSubmission rentSubmission);
+        RentSubmissionResponseDto? GetItem(int id, ApplicationUser? user);
+        RentSubmissionResponseDto? Update(RentSubmission rentSubmission);
         void Delete(RentSubmission rentSubmission);
     }
 }

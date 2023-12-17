@@ -36,7 +36,7 @@ namespace CarShop.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] RentSubmissionQueryDto query)
         {
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
@@ -46,8 +46,8 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var rentSubmissions = _rentSubmissionRepository.GetAdminList().ToArray();
-                    return rentSubmissions.ToList();
+                    var rentSubmissions = _rentSubmissionRepository.GetList(query, true);
+                    return rentSubmissions;
                 });
                 return Ok(response);
             }
@@ -56,8 +56,9 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var rentSubmissions = _rentSubmissionRepository.GetSellerList(curUser).ToArray();
-                    return rentSubmissions.ToList();
+                    query.Username = curUser.UserName;
+                    var rentSubmissions = _rentSubmissionRepository.GetList(query);
+                    return rentSubmissions;
                 });
                 return Ok(response);
             }
@@ -76,6 +77,8 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
+                    if(_rentSubmissionRepository.Exists(dto.AplNr, dto.RegNr, null)) throw new Exception("Vehicle is already registered");
+
                     var category = _categoryRepository.Get(dto.CategoryId);
                     if (category == null) throw new Exception("Category not found");
 
@@ -116,7 +119,7 @@ namespace CarShop.Controllers
 
             if (await _userManager.IsInRoleAsync(curUser, "Seller"))
             {
-                var rentSubmission = _rentSubmissionRepository.GetForSeller(id, curUser);
+                var rentSubmission = _rentSubmissionRepository.GetItem(id, curUser);
                 if (rentSubmission == null) return NotFound();
 
                 var response = new ApiResponseDto(() =>
@@ -128,7 +131,7 @@ namespace CarShop.Controllers
 
             if (await _userManager.IsInRoleAsync(curUser, "Admin"))
             {
-                var rentSubmission = _rentSubmissionRepository.GetForAdmin(id);
+                var rentSubmission = _rentSubmissionRepository.GetItem(id, null);
                 if (rentSubmission == null) return NotFound();
 
                 var response = new ApiResponseDto(() =>
@@ -152,8 +155,10 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var rentSubmission = _rentSubmissionRepository.GetForSeller(id, curUser);
+                    var rentSubmission = _rentSubmissionRepository.Get(id, curUser);
                     if (rentSubmission == null) throw new Exception("Rent Submission not found");
+
+                    if (rentSubmission.Status != "Draft") throw new Exception("Only drafts can be edited");
 
                     if (!string.IsNullOrEmpty(dto.AplNr))
                     {
@@ -190,6 +195,69 @@ namespace CarShop.Controllers
                         rentSubmission.Year = dto.Year.Value;
                     }
 
+                    if (_rentSubmissionRepository.Exists(rentSubmission.AplNr, rentSubmission.RegNr, rentSubmission.Id)) throw new Exception("Vehicle is already registered");
+
+                    return _rentSubmissionRepository.Update(rentSubmission);
+                });
+                return Ok(response);
+            }
+
+            return Forbid();
+        }
+
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] StatusUpdateDto dto)
+        {
+            var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var curUser = await _userManager.FindByIdAsync(currentUserID);
+            if (curUser == null) throw new Exception("User not found");
+
+            if (await _userManager.IsInRoleAsync(curUser, "Seller"))
+            {
+                var response = new ApiResponseDto(() =>
+                {
+                    var rentSubmission = _rentSubmissionRepository.Get(id, curUser);
+                    if (rentSubmission == null) throw new Exception("Rent Submission not found");
+
+                    var newStatus = rentSubmission.AvailableStatusTransitions.Find(x => x.Name.Equals(dto.Status));
+                    if (newStatus == null) throw new Exception("Incorrect status transition");
+
+                    string[] statusNames;
+
+                    switch (newStatus.Name)
+                    {
+                        case "Submitted":
+                            statusNames = new string[] { "Cancelled" };
+                            rentSubmission.AdminStatus = "Processing";
+                            break;
+                        default:
+                            statusNames = new string[] { };
+                            break;
+                    }
+
+                    List<Status> availableStatusTransitions = _statusRepository.GetByName(statusNames).ToList();
+
+                    rentSubmission.Status = newStatus.Name;
+                    rentSubmission.AvailableStatusTransitions = availableStatusTransitions;
+
+                    return _rentSubmissionRepository.Update(rentSubmission);
+                });
+                return Ok(response);
+            }
+
+            if (await _userManager.IsInRoleAsync(curUser, "Admin"))
+            {
+                var response = new ApiResponseDto(() =>
+                {
+                    var rentSubmission = _rentSubmissionRepository.Get(id, null);
+                    if (rentSubmission == null) throw new Exception("Rent Submission not found");
+
+                    var newStatus = _statusRepository.GetByName(new string[] { dto.Status }).FirstOrDefault();
+                    if (newStatus == null) throw new Exception("Status not found");
+
+                    rentSubmission.AdminStatus = newStatus.Name;
+                    rentSubmission.AdminComment = dto.Comment;
+
                     return _rentSubmissionRepository.Update(rentSubmission);
                 });
                 return Ok(response);
@@ -209,7 +277,7 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var rentSubmission = _rentSubmissionRepository.GetForAdmin(id);
+                    var rentSubmission = _rentSubmissionRepository.Get(id, null);
                     if (rentSubmission == null) throw new Exception("Rent Submission not found");
 
                     _rentSubmissionRepository.Delete(rentSubmission);
