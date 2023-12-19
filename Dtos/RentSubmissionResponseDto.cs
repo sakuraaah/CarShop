@@ -7,6 +7,7 @@ namespace CarShop.Dtos
         public int Id { get; set; }
         public DateTime Created { get; set; }
         public UserResponseDto User { get; set; }
+        public string ImgSrc { get; set; }
         public string AplNr { get; set; }
         public string RegNr { get; set; }
         public int CategoryId { get; set; }
@@ -31,6 +32,7 @@ namespace CarShop.Dtos
                 User = new UserResponseDto(rentsubmission.User);
             }
 
+            ImgSrc = rentsubmission.ImgSrc;
             AplNr = rentsubmission.AplNr;
             RegNr = rentsubmission.RegNr;
             CategoryId = rentsubmission.CategoryId;

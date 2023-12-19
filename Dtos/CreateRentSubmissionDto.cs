@@ -5,6 +5,8 @@ namespace CarShop.Dtos
     public class CreateRentSubmissionDto
     {
         [Required]
+        public string ImgSrc { get; set; }
+        [Required]
         public string AplNr { get; set; }
         [Required]
         public string RegNr { get; set; }

@@ -90,6 +90,7 @@ namespace CarShop.Controllers
 
                     var rentSubmission = new RentSubmission
                     {
+                        ImgSrc = dto.ImgSrc,
                         AplNr = dto.AplNr,
                         RegNr = dto.RegNr,
                         User = curUser,
@@ -160,6 +161,10 @@ namespace CarShop.Controllers
 
                     if (rentSubmission.Status != "Draft") throw new Exception("Only drafts can be edited");
 
+                    if (!string.IsNullOrEmpty(dto.ImgSrc))
+                    {
+                        rentSubmission.ImgSrc = dto.ImgSrc;
+                    }
                     if (!string.IsNullOrEmpty(dto.AplNr))
                     {
                         rentSubmission.AplNr = dto.AplNr;

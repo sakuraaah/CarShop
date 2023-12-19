@@ -15,6 +15,10 @@ namespace CarShop.Models
         [Column(TypeName = "nvarchar(100)")]
         public string LastName { get; set; }
 
+        [PersonalData]
+        [Column(TypeName = "nvarchar(100)")]
+        public string ImgSrc { get; set; }
+
         [JsonIgnore] public List<RentSubmission> RentSubmissions { get; set; }
     }
 }

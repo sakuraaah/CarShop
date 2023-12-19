@@ -4,6 +4,7 @@ namespace CarShop.Dtos
 {
     public class UpdateRentSubmissionDto
     {
+        public string? ImgSrc { get; set; }
         public string? AplNr { get; set; }
         public string? RegNr { get; set; }
         public int? CategoryId { get; set; }
