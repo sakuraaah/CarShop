@@ -58,7 +58,7 @@ namespace CarShop.Controllers
             var response = new ApiResponseDto(() =>
             {
                 var mark = _markRepository.Get(id);
-                if (mark == null) throw new Exception("Marka nav atrasta");
+                if (mark == null) throw new Exception("Mark not found");
 
                 mark.Name = dto.Name;
 
@@ -73,7 +73,7 @@ namespace CarShop.Controllers
             var response = new ApiResponseDto(() =>
             {
                 var mark = _markRepository.Get(id);
-                if (mark == null) throw new Exception("Marka nav atrasta");
+                if (mark == null) throw new Exception("Mark not found");
 
                 _markRepository.Delete(mark);
             });

@@ -10,7 +10,7 @@ namespace CarShop.Data
         public string Name { get; set; }
 
         [JsonIgnore] public List<RentSubmission> RentSubmissions { get; set; }
-
+        [JsonIgnore] public List<BuyItem> BuyItems { get; set; }
         public Status()
         {
 

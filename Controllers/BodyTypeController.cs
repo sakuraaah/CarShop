@@ -58,7 +58,7 @@ namespace CarShop.Controllers
             var response = new ApiResponseDto(() =>
             {
                 var bodyType = _bodyTypeRepository.Get(id);
-                if (bodyType == null) throw new Exception("Virsbūves tips nav atrasts");
+                if (bodyType == null) throw new Exception("Body type not found");
 
                 bodyType.Name = dto.Name;
 
@@ -73,7 +73,7 @@ namespace CarShop.Controllers
             var response = new ApiResponseDto(() =>
             {
                 var bodyType = _bodyTypeRepository.Get(id);
-                if (bodyType == null) throw new Exception("Virsbūves tips nav atrasts");
+                if (bodyType == null) throw new Exception("Body type not found");
 
                 _bodyTypeRepository.Delete(bodyType);
             });

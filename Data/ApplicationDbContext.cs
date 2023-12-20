@@ -14,9 +14,14 @@ namespace CarShop.Data
 
         }
         public DbSet<RentSubmission> RentSubmissions { get; set; }
+        public DbSet<BuyItem> BuyItems { get; set; }
         public DbSet<Status> Statuses { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Mark> Marks { get; set; }
         public DbSet<BodyType> BodyTypes { get; set; }
+        public DbSet<Color> Colors { get; set; }
+        public DbSet<Feature> Features { get; set; }
+        public DbSet<CarClass> CarClasses { get; set; }
+        public DbSet<RentCategory> RentCategories { get; set; }
     }
 }

@@ -58,7 +58,7 @@ namespace CarShop.Controllers
             var response = new ApiResponseDto(() =>
             {
                 var status = _statusRepository.Get(id);
-                if (status == null) throw new Exception("Statuss nav atrasts");
+                if (status == null) throw new Exception("Status not found");
 
                 status.Name = dto.Name;
 
@@ -73,7 +73,7 @@ namespace CarShop.Controllers
             var response = new ApiResponseDto(() =>
             {
                 var status = _statusRepository.Get(id);
-                if (status == null) throw new Exception("Statuss nav atrasts");
+                if (status == null) throw new Exception("Status not found");
 
                 _statusRepository.Delete(status);
             });

@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CarShop.Controllers
 {
-    [Route("api/categories")]
+    [Route("api/features")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class FeatureController : ControllerBase
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IFeatureRepository _featureRepository;
 
-        public CategoryController(ICategoryRepository categoryRepository)
+        public FeatureController(IFeatureRepository featureRepository)
         {
-            _categoryRepository = categoryRepository;
+            _featureRepository = featureRepository;
         }
 
         [HttpGet]
@@ -21,8 +21,8 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var categories = _categoryRepository.GetAll().ToArray();
-                return categories.ToList();
+                var features = _featureRepository.GetAll().ToArray();
+                return features.ToList();
             });
             return Ok(response);
         }
@@ -32,12 +32,12 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var category = new Category
+                var feature = new Feature
                 {
                     Name = dto.Name
                 };
 
-                return _categoryRepository.Create(category);
+                return _featureRepository.Create(feature);
             });
             return Ok(response);
         }
@@ -47,7 +47,7 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                return _categoryRepository.Get(id);
+                return _featureRepository.Get(id);
             });
             return Ok(response);
         }
@@ -57,12 +57,12 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var category = _categoryRepository.Get(id);
-                if (category == null) throw new Exception("Category not found");
+                var feature = _featureRepository.Get(id);
+                if (feature == null) throw new Exception("Feature not found");
 
-                category.Name = dto.Name;
+                feature.Name = dto.Name;
 
-                return _categoryRepository.Update(category);
+                return _featureRepository.Update(feature);
             });
             return Ok(response);
         }
@@ -72,10 +72,10 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var category = _categoryRepository.Get(id);
-                if (category == null) throw new Exception("Category not found");
+                var feature = _featureRepository.Get(id);
+                if (feature == null) throw new Exception("Feature not found");
 
-                _categoryRepository.Delete(category);
+                _featureRepository.Delete(feature);
             });
             return Ok(response);
         }

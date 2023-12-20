@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CarShop.Controllers
 {
-    [Route("api/categories")]
+    [Route("api/colors")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class ColorController : ControllerBase
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IColorRepository _colorRepository;
 
-        public CategoryController(ICategoryRepository categoryRepository)
+        public ColorController(IColorRepository colorRepository)
         {
-            _categoryRepository = categoryRepository;
+            _colorRepository = colorRepository;
         }
 
         [HttpGet]
@@ -21,8 +21,8 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var categories = _categoryRepository.GetAll().ToArray();
-                return categories.ToList();
+                var colors = _colorRepository.GetAll().ToArray();
+                return colors.ToList();
             });
             return Ok(response);
         }
@@ -32,12 +32,12 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var category = new Category
+                var color = new Color
                 {
                     Name = dto.Name
                 };
 
-                return _categoryRepository.Create(category);
+                return _colorRepository.Create(color);
             });
             return Ok(response);
         }
@@ -47,7 +47,7 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                return _categoryRepository.Get(id);
+                return _colorRepository.Get(id);
             });
             return Ok(response);
         }
@@ -57,12 +57,12 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var category = _categoryRepository.Get(id);
-                if (category == null) throw new Exception("Category not found");
+                var color = _colorRepository.Get(id);
+                if (color == null) throw new Exception("Color not found");
 
-                category.Name = dto.Name;
+                color.Name = dto.Name;
 
-                return _categoryRepository.Update(category);
+                return _colorRepository.Update(color);
             });
             return Ok(response);
         }
@@ -72,10 +72,10 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var category = _categoryRepository.Get(id);
-                if (category == null) throw new Exception("Category not found");
+                var color = _colorRepository.Get(id);
+                if (color == null) throw new Exception("Color not found");
 
-                _categoryRepository.Delete(category);
+                _colorRepository.Delete(color);
             });
             return Ok(response);
         }

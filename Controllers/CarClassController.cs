@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CarShop.Controllers
 {
-    [Route("api/categories")]
+    [Route("api/car-classes")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class CarClassController : ControllerBase
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly ICarClassRepository _carClassRepository;
 
-        public CategoryController(ICategoryRepository categoryRepository)
+        public CarClassController(ICarClassRepository carClassRepository)
         {
-            _categoryRepository = categoryRepository;
+            _carClassRepository = carClassRepository;
         }
 
         [HttpGet]
@@ -21,8 +21,8 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var categories = _categoryRepository.GetAll().ToArray();
-                return categories.ToList();
+                var carClasses = _carClassRepository.GetAll().ToArray();
+                return carClasses.ToList();
             });
             return Ok(response);
         }
@@ -32,12 +32,12 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var category = new Category
+                var carClass = new CarClass
                 {
                     Name = dto.Name
                 };
 
-                return _categoryRepository.Create(category);
+                return _carClassRepository.Create(carClass);
             });
             return Ok(response);
         }
@@ -47,7 +47,7 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                return _categoryRepository.Get(id);
+                return _carClassRepository.Get(id);
             });
             return Ok(response);
         }
@@ -57,12 +57,12 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var category = _categoryRepository.Get(id);
-                if (category == null) throw new Exception("Category not found");
+                var carClass = _carClassRepository.Get(id);
+                if (carClass == null) throw new Exception("Car class not found");
 
-                category.Name = dto.Name;
+                carClass.Name = dto.Name;
 
-                return _categoryRepository.Update(category);
+                return _carClassRepository.Update(carClass);
             });
             return Ok(response);
         }
@@ -72,10 +72,10 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var category = _categoryRepository.Get(id);
-                if (category == null) throw new Exception("Category not found");
+                var carClass = _carClassRepository.Get(id);
+                if (carClass == null) throw new Exception("Car class not found");
 
-                _categoryRepository.Delete(category);
+                _carClassRepository.Delete(carClass);
             });
             return Ok(response);
         }
