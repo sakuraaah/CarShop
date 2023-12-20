@@ -4,6 +4,7 @@ using CarShop.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarShop.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231220130319_BuyItemRelations")]
+    partial class BuyItemRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,8 +104,9 @@ namespace CarShop.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EngPower")
-                        .HasColumnType("int");
+                    b.Property<string>("EngPower")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImgSrc")
                         .IsRequired()
@@ -134,6 +137,7 @@ namespace CarShop.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Year")
@@ -151,7 +155,7 @@ namespace CarShop.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BuyItems");
+                    b.ToTable("BuyItem");
                 });
 
             modelBuilder.Entity("CarShop.Data.CarClass", b =>
@@ -361,7 +365,7 @@ namespace CarShop.Migrations
 
                     b.Property<string>("ImgSrc")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -764,7 +768,9 @@ namespace CarShop.Migrations
 
                     b.HasOne("CarShop.Models.ApplicationUser", "User")
                         .WithMany("BuyItems")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("BodyType");
 
