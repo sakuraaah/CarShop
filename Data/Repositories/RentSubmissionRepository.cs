@@ -122,6 +122,8 @@ namespace CarShop.Data
         public RentSubmission? Get(int id, ApplicationUser? user)
         {
             IQueryable<RentSubmission> rentSubmissionQuery = GetAll()
+                .Include(x => x.Category)
+                .Include(x => x.Mark)
                 .Include(x => x.AvailableStatusTransitions)
                 .Where(x => x.Id.Equals(id));
 
@@ -149,6 +151,10 @@ namespace CarShop.Data
             if (user != null)
             {
                 rentSubmissionQuery = rentSubmissionQuery.Where(x => x.User.Equals(user));
+            }
+            else
+            {
+                rentSubmissionQuery = rentSubmissionQuery.Where(x => x.Status != "Draft");
             }
 
             return rentSubmissionQuery

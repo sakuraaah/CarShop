@@ -11,6 +11,12 @@ namespace CarShop.Data
             return _context.Features;
         }
 
+        public IQueryable<Feature> GetByName(string[] features)
+        {
+            return GetAll()
+                .Where(x => features.Contains(x.Name));
+        }
+
         public Feature? Create(Feature feature)
         {
             feature = _context.Features.Add(feature).Entity;
