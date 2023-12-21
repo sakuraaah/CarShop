@@ -224,6 +224,8 @@ namespace CarShop.Controllers
                     var rentSubmission = _rentSubmissionRepository.Get(id, curUser);
                     if (rentSubmission == null) throw new Exception("Rent Submission not found");
 
+                    if (rentSubmission.AdminStatus == "Blocked") throw new Exception("You cannot update blocked submission");
+
                     var newStatus = rentSubmission.AvailableStatusTransitions.Find(x => x.Name.Equals(dto.Status));
                     if (newStatus == null) throw new Exception("Incorrect status transition");
 
@@ -234,6 +236,11 @@ namespace CarShop.Controllers
                         case "Submitted":
                             statusNames = new string[] { "Cancelled" };
                             rentSubmission.AdminStatus = "Processing";
+                            break;
+                        case "Cancelled":
+                            statusNames = new string[] { };
+                            rentSubmission.AdminStatus = null;
+                            rentSubmission.AdminComment = null;
                             break;
                         default:
                             statusNames = new string[] { };
@@ -257,8 +264,13 @@ namespace CarShop.Controllers
                     var rentSubmission = _rentSubmissionRepository.Get(id, null);
                     if (rentSubmission == null) throw new Exception("Rent Submission not found");
 
+                    if (rentSubmission.Status != "Submitted") throw new Exception("You can only update submitted rent submissions");
+
                     var newStatus = _statusRepository.GetByName(new string[] { dto.Status }).FirstOrDefault();
                     if (newStatus == null) throw new Exception("Status not found");
+
+                    string[] adminStatusTransitions = { "Confirmed", "Blocked" };
+                    if (!adminStatusTransitions.Contains(newStatus.Name)) throw new Exception("Admin status can only be set to 'Confirmed' or 'Blocked'");
 
                     rentSubmission.AdminStatus = newStatus.Name;
                     rentSubmission.AdminComment = dto.Comment;

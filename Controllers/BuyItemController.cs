@@ -50,8 +50,8 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var rentSubmissions = _buyItemRepository.GetList(query);
-                return rentSubmissions;
+                var buyItems = _buyItemRepository.GetList(query);
+                return buyItems;
             });
             return Ok(response);
         }
@@ -68,8 +68,8 @@ namespace CarShop.Controllers
                 var response = new ApiResponseDto(() =>
                 {
                     query.Username = curUser.UserName;
-                    var rentSubmissions = _buyItemRepository.GetList(query, "Seller");
-                    return rentSubmissions;
+                    var buyItems = _buyItemRepository.GetList(query, "Seller");
+                    return buyItems;
                 });
                 return Ok(response);
             }
@@ -88,8 +88,8 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var rentSubmissions = _buyItemRepository.GetList(query, "Admin");
-                    return rentSubmissions;
+                    var buyItems = _buyItemRepository.GetList(query, "Admin");
+                    return buyItems;
                 });
                 return Ok(response);
             }
@@ -319,6 +319,8 @@ namespace CarShop.Controllers
                     var buyItem = _buyItemRepository.Get(id, curUser);
                     if (buyItem == null) throw new Exception("Buy item not found");
 
+                    if (buyItem.AdminStatus == "Blocked") throw new Exception("You cannot update blocked item");
+
                     var newStatus = buyItem.AvailableStatusTransitions.Find(x => x.Name.Equals(dto.Status));
                     if (newStatus == null) throw new Exception("Incorrect status transition");
 
@@ -328,7 +330,11 @@ namespace CarShop.Controllers
                     {
                         case "Submitted":
                             statusNames = new string[] { "Cancelled" };
-                            buyItem.AdminStatus = "Processing";
+                            break;
+                        case "Cancelled":
+                            statusNames = new string[] { };
+                            buyItem.AdminStatus = null;
+                            buyItem.AdminComment = null;
                             break;
                         default:
                             statusNames = new string[] { };
@@ -352,8 +358,13 @@ namespace CarShop.Controllers
                     var buyItem = _buyItemRepository.Get(id, null);
                     if (buyItem == null) throw new Exception("Buy item not found");
 
+                    if (buyItem.Status != "Submitted") throw new Exception("You can only update submitted buy items");
+
                     var newStatus = _statusRepository.GetByName(new string[] { dto.Status }).FirstOrDefault();
                     if (newStatus == null) throw new Exception("Status not found");
+
+                    string[] adminStatusTransitions = { "Confirmed", "Blocked" };
+                    if (!adminStatusTransitions.Contains(newStatus.Name)) throw new Exception("Admin status can only be set to 'Confirmed' or 'Blocked'");
 
                     buyItem.AdminStatus = newStatus.Name;
                     buyItem.AdminComment = dto.Comment;

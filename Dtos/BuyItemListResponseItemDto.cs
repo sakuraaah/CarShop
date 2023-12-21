@@ -10,9 +10,11 @@ namespace CarShop.Dtos
         public string ImgSrc { get; set; }
         public string Mark { get; set; }
         public string Model { get; set; }
+        public string? Description { get; set; }
         public decimal Price { get; set; }
         public int Year { get; set; }
         public int Mileage { get; set; }
+        public string AdminStatus { get; set; }
 
         public BuyItemListResponseItemDto(BuyItem buyItem)
         {
@@ -27,9 +29,14 @@ namespace CarShop.Dtos
             ImgSrc = buyItem.ImgSrc;
             Mark = buyItem.Mark.Name;
             Model = buyItem.Model;
+            if (!string.IsNullOrWhiteSpace(buyItem.Description))
+            {
+                Description = buyItem.Description;
+            }
             Price = buyItem.Price;
             Year = buyItem.Year;
             Mileage = buyItem.Mileage;
+            AdminStatus = buyItem.AdminStatus;
         }
     }
 }

@@ -14,6 +14,7 @@ namespace CarShop.Dtos
         public string Mark { get; set; }
         public string Model { get; set; }
         public string Status { get; set; }
+        public string AdminStatus { get; set; }
 
         public RentSubmissionListResponseItemDto(RentSubmission rentsubmission)
         {
@@ -32,6 +33,11 @@ namespace CarShop.Dtos
             Mark = rentsubmission.Mark.Name;
             Model = rentsubmission.Model;
             Status = rentsubmission.Status;
+
+            if (!string.IsNullOrWhiteSpace(rentsubmission.AdminStatus))
+            {
+                AdminStatus = rentsubmission.AdminStatus;
+            }
         }
     }
 }

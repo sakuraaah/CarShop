@@ -17,11 +17,7 @@ namespace CarShop.Data
         {
             IQueryable<BuyItem> buyItemQuery = GetAll()
                 .Include(x => x.User)
-                .Include(x => x.Category)
-                .Include(x => x.Mark)
-                .Include(x => x.BodyType)
-                .Include(x => x.Color)
-                .Include(x => x.Features);
+                .Include(x => x.Mark);
 
             if (!string.IsNullOrWhiteSpace(query.Username))
             {
@@ -106,7 +102,9 @@ namespace CarShop.Data
             switch (userRole)
             {
                 case "Buyer":
-                    buyItemQuery = buyItemQuery.Where(x => x.Status.Equals("Submitted"));
+                    buyItemQuery = buyItemQuery
+                        .Where(x => x.Status.Equals("Submitted"))
+                        .Where(x => x.AdminStatus != "Blocked");
                     break;
 
                 case "Seller":
@@ -224,7 +222,9 @@ namespace CarShop.Data
             switch (userRole)
             {
                 case "Buyer":
-                    buyItemQuery = buyItemQuery.Where(x => x.Status.Equals("Submitted"));
+                    buyItemQuery = buyItemQuery
+                        .Where(x => x.Status.Equals("Submitted"))
+                        .Where(x => x.AdminStatus != "Blocked");
                     break;
 
                 case "Seller":
