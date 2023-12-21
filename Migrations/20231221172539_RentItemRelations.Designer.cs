@@ -4,6 +4,7 @@ using CarShop.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarShop.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231221172539_RentItemRelations")]
+    partial class RentItemRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +36,7 @@ namespace CarShop.Migrations
 
                     b.HasIndex("FeaturesId");
 
-                    b.ToTable("BuyItemFeature", (string)null);
+                    b.ToTable("BuyItemFeature");
                 });
 
             modelBuilder.Entity("BuyItemStatus", b =>
@@ -49,7 +51,7 @@ namespace CarShop.Migrations
 
                     b.HasIndex("BuyItemsId");
 
-                    b.ToTable("BuyItemStatus", (string)null);
+                    b.ToTable("BuyItemStatus");
                 });
 
             modelBuilder.Entity("CarShop.Data.BodyType", b =>
@@ -66,7 +68,7 @@ namespace CarShop.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BodyTypes", (string)null);
+                    b.ToTable("BodyTypes");
                 });
 
             modelBuilder.Entity("CarShop.Data.BuyItem", b =>
@@ -151,7 +153,7 @@ namespace CarShop.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BuyItems", (string)null);
+                    b.ToTable("BuyItems");
                 });
 
             modelBuilder.Entity("CarShop.Data.CarClass", b =>
@@ -168,7 +170,7 @@ namespace CarShop.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CarClasses", (string)null);
+                    b.ToTable("CarClasses");
                 });
 
             modelBuilder.Entity("CarShop.Data.Category", b =>
@@ -185,7 +187,7 @@ namespace CarShop.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("CarShop.Data.Color", b =>
@@ -202,7 +204,7 @@ namespace CarShop.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Colors", (string)null);
+                    b.ToTable("Colors");
                 });
 
             modelBuilder.Entity("CarShop.Data.Feature", b =>
@@ -219,7 +221,7 @@ namespace CarShop.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Features", (string)null);
+                    b.ToTable("Features");
                 });
 
             modelBuilder.Entity("CarShop.Data.Mark", b =>
@@ -236,7 +238,7 @@ namespace CarShop.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Marks", (string)null);
+                    b.ToTable("Marks");
                 });
 
             modelBuilder.Entity("CarShop.Data.RentCategory", b =>
@@ -253,7 +255,7 @@ namespace CarShop.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RentCategories", (string)null);
+                    b.ToTable("RentCategories");
                 });
 
             modelBuilder.Entity("CarShop.Data.RentItem", b =>
@@ -348,7 +350,7 @@ namespace CarShop.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RentItems", (string)null);
+                    b.ToTable("RentItems");
                 });
 
             modelBuilder.Entity("CarShop.Data.RentSubmission", b =>
@@ -411,7 +413,7 @@ namespace CarShop.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RentSubmissions", (string)null);
+                    b.ToTable("RentSubmissions");
                 });
 
             modelBuilder.Entity("CarShop.Data.Status", b =>
@@ -428,7 +430,7 @@ namespace CarShop.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Statuses", (string)null);
+                    b.ToTable("Statuses");
                 });
 
             modelBuilder.Entity("CarShop.Models.ApplicationUser", b =>
@@ -591,7 +593,7 @@ namespace CarShop.Migrations
 
                     b.HasIndex("Use");
 
-                    b.ToTable("Keys", (string)null);
+                    b.ToTable("Keys");
                 });
 
             modelBuilder.Entity("Duende.IdentityServer.EntityFramework.Entities.PersistedGrant", b =>
@@ -661,7 +663,7 @@ namespace CarShop.Migrations
 
                     b.HasIndex("RentItemsId");
 
-                    b.ToTable("FeatureRentItem", (string)null);
+                    b.ToTable("FeatureRentItem");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -813,7 +815,7 @@ namespace CarShop.Migrations
 
                     b.HasIndex("RentItemsId");
 
-                    b.ToTable("RentItemStatus", (string)null);
+                    b.ToTable("RentItemStatus");
                 });
 
             modelBuilder.Entity("RentSubmissionStatus", b =>
@@ -828,7 +830,7 @@ namespace CarShop.Migrations
 
                     b.HasIndex("RentSubmissionsId");
 
-                    b.ToTable("RentSubmissionStatus", (string)null);
+                    b.ToTable("RentSubmissionStatus");
                 });
 
             modelBuilder.Entity("BuyItemFeature", b =>
