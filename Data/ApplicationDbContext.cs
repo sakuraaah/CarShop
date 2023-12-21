@@ -14,6 +14,7 @@ namespace CarShop.Data
 
         }
         public DbSet<RentSubmission> RentSubmissions { get; set; }
+        public DbSet<RentItem> RentItems { get; set; }
         public DbSet<BuyItem> BuyItems { get; set; }
         public DbSet<Status> Statuses { get; set; }
         public DbSet<Category> Categories { get; set; }

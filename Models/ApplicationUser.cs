@@ -20,6 +20,7 @@ namespace CarShop.Models
         public string ImgSrc { get; set; }
 
         [JsonIgnore] public List<RentSubmission> RentSubmissions { get; set; }
+        [JsonIgnore] public List<RentItem> RentItems { get; set; }
         [JsonIgnore] public List<BuyItem> BuyItems { get; set; }
     }
 }

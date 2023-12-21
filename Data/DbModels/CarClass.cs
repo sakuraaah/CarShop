@@ -8,6 +8,7 @@ namespace CarShop.Data
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
+        [JsonIgnore] public List<RentItem> RentItems { get; set; }
         public CarClass()
         {
 

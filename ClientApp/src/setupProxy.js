@@ -17,6 +17,7 @@ const context =  [  // TODO
   "/api/rent-categories",
   "/api/body-types",
   "/api/rent-submissions",
+  "/api/rent-items",
   "/api/buy-items",
   "/_configuration",
   "/.well-known",

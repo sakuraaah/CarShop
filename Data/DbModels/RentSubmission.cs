@@ -1,5 +1,6 @@
 ﻿using CarShop.Models;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace CarShop.Data
 {
@@ -23,6 +24,7 @@ namespace CarShop.Data
         public List<Status> AvailableStatusTransitions { get; set; }
         public string? AdminStatus { get; set; }
         public string? AdminComment { get; set; }
+        [JsonIgnore] public RentItem RentItem { get; set; }
 
         public RentSubmission()
         {
