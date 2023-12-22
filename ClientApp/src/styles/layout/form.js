@@ -15,6 +15,13 @@ export const StyledWrapper = styled.div`
   background-color: #fff;
   margin-bottom: 20px;
 
+  .ant-row {
+
+    &:not(:last-child) {
+      padding-bottom: 15px;
+    }
+  }
+
   .ant-form-item:last-child {
     margin-bottom: 0;
   }

@@ -2,7 +2,7 @@ import ApiAuthorzationRoutes from './components/api-authorization/ApiAuthorizati
 import { Counter } from "./pages/Counter";
 import { FetchData } from "./pages/FetchData";
 import { Home } from "./pages/Home";
-import { NewProductPage } from "./pages/NewProductPage";
+import { CrudRentSubmissionPage } from "./pages/CrudRentSubmissionPage";
 
 const AppRoutes = [
   {
@@ -19,8 +19,14 @@ const AppRoutes = [
     element: <FetchData />
   },
   {
-    path: '/new-product',
-    element: <NewProductPage />
+    path: '/new-rent-submission',
+    requireAuth: true,
+    element: <CrudRentSubmissionPage />
+  },
+  {
+    path: '/rent-submission/:id',
+    requireAuth: true,
+    element: <CrudRentSubmissionPage />
   },
   ...ApiAuthorzationRoutes
 ];

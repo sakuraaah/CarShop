@@ -2,7 +2,7 @@ import React from 'react';
 import { Col, Row } from 'antd';
 import useWindowSize from '../../utils/useWindowSize';
 
-export const SideBySide = ({ left, right, full, gutter = 16 }) => {
+export const SideBySide = ({ left, right, full, gutter = 32 }) => {
   const size = useWindowSize();
 
   return (

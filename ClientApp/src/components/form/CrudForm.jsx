@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Alert, 
   Button, 
@@ -15,39 +15,122 @@ import {
   StyledWrapper,
 } from '../../styles/layout/form';
 import useQueryApiClient from '../../utils/useQueryApiClient';
+import { message } from 'antd';
+import dayjs from 'dayjs';
 
 export const CrudForm = ({
   form,
   url,
-  formLabel,
+  apiUrl,
+  name,
+  parseResponseToForm,
+  parseFormToSubmit,
   children
 }) => {
   const { id } = useParams()
-  const [successText, setSuccessText] = useState()
-  const [errorText, setErrorText] = useState()
+  const navigate = useNavigate()
 
-  const onSubmit = async (updateStatus, status = 'Confirmed') => {
+  const [labelPrefix, setLabelPrefix] = useState('')
+  const [status, setStatus] = useState('')
+  const [adminStatus, setAdminStatus] = useState('')
+  const [adminComment, setAdminComment] = useState('')
+  const [created, setCreated] = useState('')
+  const [availableStatusTransitions, setAvailableStatusTransitions] = useState([])
+
+  useEffect(() => {
+    if (id) {
+      getPost();
+    } else {
+      setLabelPrefix('Create')
+    }
+  }, [id]);
+
+  const onSubmit = async (newStatus = null) => {
     try {
       const values = await form.validateFields()
 
       if (!id) {
-        createPost(values)
+        let options = values
+        options = parseFormToSubmit && parseFormToSubmit(options)
+        createPost(options)
+      } else {
+        if (newStatus) {
+          updatePostStatus({
+            status: newStatus
+          })
+        } else {
+          let options = values
+          options = parseFormToSubmit && parseFormToSubmit(options)
+          updatePost(options)
+        }
       }
     } catch (errorInfo) {
       form.scrollToField(errorInfo.errorFields[0]?.name, { behavior: 'smooth', block: 'center', scrollMode: 'if-needed' })
     }
   }
 
+  const { refetch: getPost, isLoading: getLoading } = useQueryApiClient({
+    request: {
+      url: `${apiUrl}/${id}`,
+      method: 'GET',
+      disableOnMount: true,
+    },
+    onSuccess: (response) => {
+      let formData = response.data
+      formData = parseResponseToForm && parseResponseToForm(formData)
+      form.setFieldsValue(formData)
+
+      if (response.data?.status == 'Draft') {
+        setLabelPrefix('Edit')
+      } else {
+        setLabelPrefix('View')
+      }
+
+      setStatus(response.data?.status)
+      setAdminStatus(response.data?.adminStatus)
+      setAdminComment(response.data?.adminComment)
+      setCreated(dayjs(response.data?.created).format('DD-MM-YYYY'))
+      setAvailableStatusTransitions(response.data?.availableStatusTransitions)
+    },
+    onError: () => {
+      navigate(-1)
+    }
+  });
+
   const { appendData: createPost, isLoading: createLoading } = useQueryApiClient({
     request: {
-      url: url,
+      url: apiUrl,
       method: 'POST'
     },
     onSuccess: (response) => {
-      setSuccessText(response.text ?? 'Ieraksts ir veiksmīgi izveidots.'); // TODO
+      message.success(`${name} is succesfully created`)
+      navigate(`/${url}/${response.data?.id}`)
+    }
+  });
+
+  const { appendData: updatePost, isLoading: updateLoading } = useQueryApiClient({
+    request: {
+      url: `${apiUrl}/${id}`,
+      method: 'PATCH'
     },
-    onError: (error) => {
-      setErrorText(error.text); // TODO
+    onSuccess: () => {
+      message.success(`${name} is succesfully updated`)
+    }
+  });
+
+  const { appendData: updatePostStatus, isLoading: updateStatusLoading } = useQueryApiClient({
+    request: {
+      url: `${apiUrl}/${id}/status`,
+      method: 'PATCH'
+    },
+    onSuccess: (response) => {
+      message.success(`Status for ${name} is succesfully updated`)
+
+      setLabelPrefix('View')
+      setStatus(response.data?.status)
+      setAdminStatus(response.data?.adminStatus)
+      setAdminComment(response.data?.adminComment)
+      setAvailableStatusTransitions(response.data?.availableStatusTransitions)
     }
   });
 
@@ -55,31 +138,41 @@ export const CrudForm = ({
     <StyledPage>
       <Form form={form} >
         <FormHeader>
-          <Label label={formLabel} extraBold />
-          <LabelFormItem 
-            label={'Status'} 
-            labelValue={''}
+          <Label 
+            label={`${labelPrefix} ${name}`} 
+            extraBold 
           />
+
+          {status &&
+            <LabelFormItem 
+              label={'Status'} 
+              labelValue={status}
+            />
+          }
+
+          {created &&
+            <LabelFormItem 
+              label={'Created'} 
+              labelValue={created}
+            />
+          }
+
+          {adminStatus &&
+            <LabelFormItem 
+              label={'Admin status'} 
+              labelValue={adminStatus}
+            />
+          }
+
+          {adminComment && 
+            <LabelFormItem 
+              label={'Admin comment'} 
+              labelValue={adminComment}
+            />
+          }
         </FormHeader>
 
-        <Loader loading={false} >
-        
-          { successText && 
-            <Alert 
-              message={successText}
-              type="info"
-              style={{ marginBottom: "20px" }}
-            /> 
-          }
-
-          { 
-            errorText && 
-            <Alert 
-              message={errorText}
-              type="error"
-              style={{ marginBottom: "20px" }}
-            /> 
-          }
+        <Loader loading={createLoading || getLoading || updateLoading || updateStatusLoading} >
 
           {children}
 
@@ -87,14 +180,38 @@ export const CrudForm = ({
             <ButtonList>
               <Button 
                 htmlType="submit" 
-                onClick={() => onSubmit(false)} 
+                onClick={() => onSubmit()} 
                 type="primary" 
                 label={'Save'} 
               />
+              {availableStatusTransitions.map((status) => {
+                let statusName;
+
+                switch (status.name) {
+                  case 'Submitted':
+                    statusName = 'Submit'
+                    break
+
+                  case 'Cancelled':
+                    statusName = 'Cancel'
+                    break
+
+                  default:
+                    statusName = status.name
+                    break
+                }
+
+                return (
+                  <Button 
+                    htmlType="submit" 
+                    onClick={() => onSubmit(status.name)} 
+                    label={statusName} 
+                  />
+                )
+              })}
               <Button 
-                htmlType="submit" 
-                onClick={() => onSubmit(false)} 
-                label={'Submit'} 
+                onClick={() => navigate(-1)} 
+                label={'Return'} 
               />
             </ButtonList>
           </StyledWrapper>

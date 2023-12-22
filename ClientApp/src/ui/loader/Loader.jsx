@@ -2,6 +2,7 @@ import React from 'react';
 import { Icon } from '../../ui';
 import styled from 'styled-components';
 import { ReactComponent as LoaderIcon } from '../../assets/LoaderIcon2.svg' 
+import FadeIn from 'react-fade-in';
 
 export const Loader = ({
   loading,
@@ -47,8 +48,8 @@ export const Loader = ({
       </IconWrapper>
     </LoaderIconContainer>
   ) : (
-    <>
+    <FadeIn>
       {children}
-    </>
+    </FadeIn>
   );
 };

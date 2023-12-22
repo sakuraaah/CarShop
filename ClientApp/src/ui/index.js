@@ -9,6 +9,7 @@ export * from './form';
 export * from './formItem';
 export * from './icon';
 export * from './input';
+export * from './inputNumber';
 export * from './label';
 export * from './labelFormItem';
 export * from './loader';

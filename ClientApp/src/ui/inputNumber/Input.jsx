@@ -1,8 +1,8 @@
 import React from 'react';
-import { DatePicker as AntdDatePicker} from 'antd';
-import { FormItem } from '../../ui/formItem'
+import { Input as AntdInput } from 'antd';
+import { FormItem } from '../formItem'
 
-export const DatePicker = (props) => {
+export const Input = (props) => {
   const formItemProps = {
     name: props.name,
     label: props.label,
@@ -19,10 +19,10 @@ export const DatePicker = (props) => {
 
   return (
     <FormItem {...formItemProps} >
-      <AntdDatePicker 
-        {...props} 
+      <AntdInput 
+        { ...props } 
         size={props.size ?? 'large'}
       />
     </FormItem>
-  )
-}
+  );
+};

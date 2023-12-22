@@ -15,11 +15,13 @@ function useHandleError() {
             errorMsgArr.push(errorMsg[0]);
           }
         });
+      } else if (error.hasOwnProperty('error')) {
+        errorMsgArr.push(error.error);
       }
 
-      const errorString = errorMsgArr.length ? errorMsgArr.join('\n') : 'TODO Pieprasījuma kļūda';
+      const errorString = errorMsgArr.length ? errorMsgArr.join('\n') : 'Request Error. Try again later.';
         
-      message.error(errorString, 15);
+      message.error(errorString, 10);
     }
 
     document.body.scrollTop = document.documentElement.scrollTop = 0; //pure js scroll to top, supported in all browsers TODO

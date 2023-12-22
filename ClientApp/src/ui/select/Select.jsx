@@ -1,8 +1,10 @@
 import React from 'react';
-import { Select as AntdSelect, Form } from 'antd';
+import { Select as AntdSelect } from 'antd';
 import { FormItem } from '../../ui/formItem'
+import useQueryApiClient from '../../utils/useQueryApiClient';
 
 export const Select = (props) => {
+
   const formItemProps = {
     name: props.name,
     label: props.label,
@@ -11,7 +13,12 @@ export const Select = (props) => {
     style: props.style
   }
 
-  const children = props.children
+  const { data: options, isLoading } = useQueryApiClient({
+    request: {
+      url: props.url,
+      disableOnMount: !props.url
+    }
+  });
 
   // delete props.name
   // delete props.label
@@ -21,9 +28,16 @@ export const Select = (props) => {
 
   return (
     <FormItem {...formItemProps} >
-      <AntdSelect {...props} >
-        {children}
-      </AntdSelect>
+      <AntdSelect 
+        {...props} 
+        size={props.size ?? 'large'}
+        allowClear={props.allowClear ?? true}
+        options={props.options ?? options?.data?.map((option) => ({
+          label: option.name,
+          value: option.id
+        }))}
+        loading={isLoading}
+      />
     </FormItem>
   );
 };

@@ -99,6 +99,10 @@ const useQueryApiClient = ({
 
       const responseContent = response.data;
 
+      if (responseContent?.success === false) {
+        throw responseContent;
+      }
+
       setReceivedData(responseContent);
       setIsSuccess(true);
       onSuccess && onSuccess(responseContent); //Call onSuccess if set

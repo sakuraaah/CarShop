@@ -8,7 +8,7 @@ export const Form = (props) => {
     <AntdForm 
       {...props}
       layout="vertical"
-      validateMessages={{ required: 'Lauks ir obligāts' }}
+      validateMessages={{ required: 'Field is required' }}
     >
       {children}
     </AntdForm>
