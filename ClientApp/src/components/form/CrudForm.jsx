@@ -62,7 +62,7 @@ export const CrudForm = ({
           />
         </FormHeader>
 
-        <Loader loading={createLoading} >
+        <Loader loading={false} >
         
           { successText && 
             <Alert 
