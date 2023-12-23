@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Form as AntdForm } from 'antd';
 import { CrudForm } from '../components/form/CrudForm';
 import {
   DatePicker,
+  ImageUpload,
   Input,
   InputNumber,
   Label,
@@ -18,10 +19,11 @@ import dayjs from 'dayjs';
 
 export const CrudRentSubmissionPage = () => {
   const [form] = AntdForm.useForm();
+  const [imageUrl, setImageUrl] = useState();
 
   const parseFormToSubmit = (values) => {
     return {
-      imgSrc: '\\uploads\\Banana-Single.jpg', // TODO
+      imgSrc: values.imgSrc,
       aplNr: values.aplNr,
       regNr: values.regNr,
       categoryId: values.categoryId,
@@ -33,7 +35,10 @@ export const CrudRentSubmissionPage = () => {
   }
 
   const parseResponseToForm = (values) => {
+    setImageUrl(values.imgSrc)
+
     return {
+      imgSrc: values.imgSrc,
       aplNr: values.aplNr,
       regNr: values.regNr,
       categoryId: values.categoryId,
@@ -53,7 +58,21 @@ export const CrudRentSubmissionPage = () => {
         name={'Rent submission'}
         parseFormToSubmit={parseFormToSubmit}
         parseResponseToForm={parseResponseToForm}
-      >        
+      >
+        <StyledWrapper>
+          <Label label={'Rent submission image:'} extraBold />
+
+          <BorderBottom />
+
+          <ImageUpload
+            form={form}
+            imageUrl={imageUrl}
+            setImageUrl={setImageUrl}
+            name="imgSrc"
+            rules={[{ required: true }]}
+          />
+        </StyledWrapper>
+
         <StyledWrapper>
           <Label label={'Rent submission info:'} extraBold />
 

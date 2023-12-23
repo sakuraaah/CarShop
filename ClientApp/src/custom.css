@@ -12,3 +12,12 @@ code {
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
+
+.picture-uploader .ant-upload {
+  width: 202px !important;
+  height: 202px !important;
+}
+
+.ant-image-mask {
+  border-radius: 8px;
+}

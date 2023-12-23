@@ -9,6 +9,7 @@ namespace CarShop.Controllers
     public class ImageController : ControllerBase
     {
         public static IWebHostEnvironment _environment;
+        private readonly string _uploadsDirectory = "uploads";
         public ImageController(IWebHostEnvironment environment)
         {
             _environment = environment;
@@ -16,34 +17,54 @@ namespace CarShop.Controllers
 
         public class FileUploadApi
         {
-            public IFormFile files { get; set; }
+            public IFormFile imgSrc { get; set; }
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] FileUploadApi objFile)
         {
-            try
+            var response = new ApiResponseDto(() =>
             {
-                if (objFile.files.Length == 0) throw new Exception("No image source found");
+                if (objFile.imgSrc.Length == 0) throw new Exception("No image source found");
 
-                string uploadFolder = "\\uploads\\";
-                string uploadDir = _environment.WebRootPath + uploadFolder;
+                string uploadDir = Path.Combine(_environment.WebRootPath, _uploadsDirectory);
 
                 if (!Directory.Exists(uploadDir))
                 {
                     Directory.CreateDirectory(uploadDir);
                 }
 
-                using (FileStream fileStream = System.IO.File.Create(uploadDir + objFile.files.FileName))
+                using (FileStream fileStream = System.IO.File.Create(uploadDir + "\\" + objFile.imgSrc.FileName))
                 {
-                    objFile.files.CopyTo(fileStream);
+                    objFile.imgSrc.CopyTo(fileStream);
                     fileStream.Flush();
-                    return Ok(uploadFolder + objFile.files.FileName);
+                    return Ok("api/image/" + objFile.imgSrc.FileName);
                 }
+            });
+            return Ok(response);
+        }
+
+        [HttpGet("{imageName}")]
+        public IActionResult Get(string imageName)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(imageName)) throw new Exception("No image source found");
+
+                string imgFolder = Path.Combine(_uploadsDirectory, imageName);
+                string imgPath = Path.Combine(_environment.WebRootPath, imgFolder);
+
+                if (!System.IO.File.Exists(imgPath))
+                {
+                    return NotFound();
+                }
+
+                var imageFileStream = System.IO.File.OpenRead(imgPath);
+                return File(imageFileStream, "image/jpeg");
             }
             catch (Exception ex)
             {
-                return Ok(ex.Message.ToString());
+                return StatusCode(500, ex.Message.ToString());
             }
         }
     }

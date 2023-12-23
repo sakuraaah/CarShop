@@ -1,8 +1,8 @@
 import React from 'react';
-import { Input as AntdInput } from 'antd';
+import { Switch as AntdSwitch } from 'antd';
 import { FormItem } from '../formItem'
 
-export const Input = (props) => {
+export const Switch = (props) => {
   const formItemProps = {
     name: props.name,
     label: props.label,
@@ -11,18 +11,11 @@ export const Input = (props) => {
     style: props.style
   }
 
-  // delete props.name
-  // delete props.label
-  // delete props.rules
-  // delete props.className
-  // delete props.style
-
   return (
     <FormItem {...formItemProps} >
-      <AntdInput 
-        { ...props } 
-        size={props.size ?? 'large'}
+      <AntdSwitch 
+        {...props}
       />
     </FormItem>
-  );
-};
+  )
+}
