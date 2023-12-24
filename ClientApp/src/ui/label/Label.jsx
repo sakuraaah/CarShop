@@ -6,6 +6,10 @@ export const Label = (props) => {
   const StyledLabel = styled.label`
     font-size: 17px !important;
 
+    &.list-item {
+      font-size: 14px !important;
+    }
+
     &.extra-bold {
       font-weight: 600;
     }
@@ -15,6 +19,10 @@ export const Label = (props) => {
 
   if (props.className) {
     completeClassName += props.className;
+  }
+
+  if (props.listItem) {
+    completeClassName += ' list-item';
   }
 
   if (props.extraBold) {

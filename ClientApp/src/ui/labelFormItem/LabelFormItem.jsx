@@ -4,15 +4,13 @@ import styled from 'styled-components';
 export const LabelFormItem = (props) => {
   const StyledLabelWrapper = styled.div`
     display: flex;
+    flex-wrap: wrap;
+    column-gap: 4px;
   `;
 
   const StyledLabel = styled.label`
     &.bold {
       font-weight: 600;
-    }
-
-    &.pl {
-      padding-left: 4px;
     }
   `;
 
@@ -27,7 +25,7 @@ export const LabelFormItem = (props) => {
       <StyledLabel>
         {props.label + ':'}
       </StyledLabel>
-      <StyledLabel className="bold pl">
+      <StyledLabel className="bold">
         {' ' + (props.labelValue || '-')}
       </StyledLabel>
     </StyledLabelWrapper>

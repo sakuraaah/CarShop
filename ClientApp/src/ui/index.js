@@ -1,7 +1,9 @@
 export * from './alert';
+export * from './avatar';
 export * from './button';
 export * from './checkbox';
 export * from './checkboxGroup';
+export * from './collapse';
 export * from './conditionalWrapper';
 export * from './datePicker';
 export * from './drawer';
@@ -14,6 +16,7 @@ export * from './input';
 export * from './inputNumber';
 export * from './label';
 export * from './labelFormItem';
+export * from './list';
 export * from './loader';
 export * from './modal';
 export * from './select';

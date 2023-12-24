@@ -41,12 +41,14 @@ export const Loader = ({
   `;
 
   return loading ? (
-    <LoaderIconContainer>
-      <IconWrapper>
-        <LoaderIcon className="loader-icon" />
-        <Icon className="center-icon" style={{ color: "#b1b8c0" }} />
-      </IconWrapper>
-    </LoaderIconContainer>
+    <FadeIn>
+      <LoaderIconContainer>
+        <IconWrapper>
+          <LoaderIcon className="loader-icon" />
+          <Icon className="center-icon" style={{ color: "#b1b8c0" }} />
+        </IconWrapper>
+      </LoaderIconContainer>
+    </FadeIn>
   ) : (
     <FadeIn>
       {children}

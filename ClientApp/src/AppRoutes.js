@@ -3,6 +3,7 @@ import { Counter } from "./pages/Counter";
 import { FetchData } from "./pages/FetchData";
 import { Home } from "./pages/Home";
 import { CrudRentSubmissionPage } from "./pages/CrudRentSubmissionPage";
+import { RentSubmissionList } from "./pages/RentSubmissionList";
 
 const AppRoutes = [
   {
@@ -27,6 +28,11 @@ const AppRoutes = [
     path: '/rent-submission/:id',
     requireAuth: true,
     element: <CrudRentSubmissionPage />
+  },
+  {
+    path: '/rent-submissions',
+    requireAuth: true,
+    element: <RentSubmissionList />
   },
   ...ApiAuthorzationRoutes
 ];

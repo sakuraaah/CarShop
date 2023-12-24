@@ -27,6 +27,17 @@ export const StyledWrapper = styled.div`
   }
 `;
 
+export const FilterWrapper = styled.div`
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  column-gap: 32px;
+
+  .ant-picker {
+    width: 100%;
+  }
+`;
+
 export const FormHeader = styled.div`
   margin-bottom: 20px;
   display: flex;

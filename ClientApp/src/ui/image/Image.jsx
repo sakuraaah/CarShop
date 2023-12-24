@@ -6,6 +6,11 @@ export const Image = (props) => {
   const StyledImage = styled(AntdImage)`
     object-fit: cover;
     border-radius: 8px;
+
+    &.list-image {
+      width: 200px;
+      height: 200px;
+    }
   `;
 
   return (
