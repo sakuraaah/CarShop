@@ -2,19 +2,25 @@
 
 namespace CarShop.Dtos
 {
-    public class UserResponseDto
+    public class UserDataResponseDto
     {
+        public string Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string UserName { get; set; }
+        public string Role { get; set; }
         public string ImgSrc { get; set; }
+        public decimal Balance { get; set; }
 
-        public UserResponseDto(ApplicationUser user)
+        public UserDataResponseDto(ApplicationUser user, string role)
         {
+            Id = user.Id;
             FirstName = user.FirstName;
             LastName = user.LastName;
             UserName = user.UserName;
             ImgSrc = user.ImgSrc;
+            // Balance = user.Balance; TODO
+            Role = role;
         }
     }
 }
