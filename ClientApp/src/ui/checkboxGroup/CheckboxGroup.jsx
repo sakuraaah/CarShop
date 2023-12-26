@@ -1,9 +1,13 @@
 import React from 'react';
 import { Checkbox as AntdCheckbox } from 'antd';
-import { Checkbox } from '../checkbox';
 import { FormItem } from '../../ui/formItem'
+import useQueryApiClient from '../../utils/useQueryApiClient';
 
-export const CheckboxGroup = (props) => {
+export const CheckboxGroup = ({
+  url,
+  sameAsLabel,
+  ...props
+}) => {
   const formItemProps = {
     name: props.name,
     label: props.label,
@@ -12,7 +16,12 @@ export const CheckboxGroup = (props) => {
     style: props.style
   }
 
-  const items = props.options
+  const { data: options } = useQueryApiClient({
+    request: {
+      url: url,
+      disableOnMount: !url
+    }
+  });
 
   // delete props.name
   // delete props.label
@@ -23,19 +32,13 @@ export const CheckboxGroup = (props) => {
 
   return (
     <FormItem {...formItemProps} >
-      <AntdCheckbox.Group {...props} >
-        {items
-          ? items.map((checkbox) => {
-              return (
-                <Checkbox 
-                  key={checkbox.value} 
-                  label={checkbox.label} 
-                  value={checkbox.value} 
-                />
-              )
-            })
-          : 'TODO No items found'}
-      </AntdCheckbox.Group>
+      <AntdCheckbox.Group 
+        {...props}
+        options={props.options ?? options?.data?.map((option) => ({
+          label: option.name,
+          value: sameAsLabel ? option.name : option.id
+        }))}
+      />
     </FormItem>
   )
 }

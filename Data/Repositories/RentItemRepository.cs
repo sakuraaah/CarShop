@@ -18,7 +18,8 @@ namespace CarShop.Data
             IQueryable<RentItem> rentItemQuery = GetAll()
                 .Include(x => x.User)
                 .Include(x => x.Mark)
-                .Include(x => x.CarClass);
+                .Include(x => x.CarClass)
+                .Include(x => x.Features);
 
             if (!string.IsNullOrWhiteSpace(query.Username))
             {
@@ -52,11 +53,16 @@ namespace CarShop.Data
             {
                 string[] requiredFeatures = query.FeatureList.Split(',');
 
-                rentItemQuery = rentItemQuery.Where(
-                    x => requiredFeatures.All(
-                        reqFeature => x.Features.Any(feature => feature.Name.Equals(reqFeature))
-                    )
-                );
+                //rentItemQuery = rentItemQuery.Where(
+                //    x => requiredFeatures.All(
+                //        reqFeature => x.Features.Any(feature => feature.Name.Equals(reqFeature))
+                //    )
+                //);
+
+                foreach (string reqFeature in requiredFeatures)
+                {
+                    rentItemQuery = rentItemQuery.Where(x => x.Features.Any(f => f.Name.Equals(reqFeature)));
+                }
             }
             if (!string.IsNullOrWhiteSpace(query.RentCategory))
             {

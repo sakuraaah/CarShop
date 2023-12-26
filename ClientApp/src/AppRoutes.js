@@ -1,23 +1,43 @@
 import ApiAuthorzationRoutes from './components/api-authorization/ApiAuthorizationRoutes';
-import { Counter } from "./pages/Counter";
-import { FetchData } from "./pages/FetchData";
-import { Home } from "./pages/Home";
+
 import { CrudRentSubmissionPage } from "./pages/CrudRentSubmissionPage";
 import { RentSubmissionList } from "./pages/RentSubmissionList";
 
+import { RentItemList } from "./pages/RentItemList";
+import { RentItemSellerList } from "./pages/RentItemSellerList";
+
+import { CrudBuyItemPage } from "./pages/CrudBuyItemPage";
+import { BuyItemList } from "./pages/BuyItemList";
+import { BuyItemSellerList } from "./pages/BuyItemSellerList";
+
 const AppRoutes = [
   {
-    index: true,
-    element: <Home />
-  },
-  {
-    path: '/counter',
-    element: <Counter />
-  },
-  {
-    path: '/fetch-data',
+    path: '/new-buy-item',
     requireAuth: true,
-    element: <FetchData />
+    element: <CrudBuyItemPage />
+  },
+  {
+    path: '/buy-item/:id',
+    requireAuth: true,
+    element: <CrudBuyItemPage />
+  },
+  {
+    index: true,
+    element: <BuyItemList />
+  },
+  {
+    path: '/profile/for-sale',
+    requireAuth: true,
+    element: <BuyItemSellerList />
+  },
+  {
+    path: '/rental',
+    element: <RentItemList />
+  },
+  {
+    path: '/profile/rental',
+    requireAuth: true,
+    element: <RentItemSellerList />
   },
   {
     path: '/new-rent-submission',

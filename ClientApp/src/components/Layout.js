@@ -49,7 +49,9 @@ export const Layout = ({children}) => {
 
   const findActiveLink = (url, menuItems) => {
     for (const menuItem of menuItems) {
-      if (url == menuItem?.label?.props?.href) {
+      if (url.includes('profile')) {
+        return '4'
+      } else if (url == menuItem?.label?.props?.href) {
         return String(menuItem.key)
       }
     }
@@ -68,25 +70,14 @@ export const Layout = ({children}) => {
       icon: <DollarOutlined />,
       label: <Link href="/rental">Rental</Link>
     },
-    ...[["Admin", "Seller"].includes(userData?.role) &&
+    ...[['Admin', 'Seller'].includes(userData?.role) &&
       {
         key: 3,
         icon: <FileTextOutlined />,
         label: <Link href="/rent-submissions">Submissions</Link>
       }
     ],
-    ...(isAuthenticated ? [
-      {
-        key: 4,
-        icon: <UserOutlined />,
-        label: <Link href="/profile">Profile</Link>
-      },
-      {
-        key: 5,
-        icon: <LogoutOutlined />,
-        label: <Link href={ApplicationPaths.LogOut}>Logout</Link>
-      }
-    ] : [
+    ...(!isAuthenticated ? [
       {
         key: 4,
         icon: <UserAddOutlined />,
@@ -96,6 +87,49 @@ export const Layout = ({children}) => {
         key: 5,
         icon: <LoginOutlined />,
         label: <Link href={ApplicationPaths.Login}>Login</Link>
+      }
+    ] : [
+      (
+        userData?.role !== 'Seller' ? {
+          key: 4,
+          icon: <UserOutlined />,
+          label: <Link href="/profile">Profile</Link>
+        } : {   
+          key: 4,
+          icon: <UserOutlined />,
+          label: 'Profile',
+          children: [
+            {
+              type: 'group',
+              label: 'Profile',
+              children: [
+                {
+                  key: 5,
+                  label: <Link href="/profile">View Profile</Link>,
+                }
+              ],
+            },
+            {
+              type: 'group',
+              label: 'Your items',
+              children: [
+                {
+                  key: 6,
+                  label: <Link href="/profile/for-sale">Your vehicles</Link>,
+                },
+                {
+                  key: 7,
+                  label: <Link href="/profile/rental">Your Rentals</Link>,
+                }
+              ],
+            },
+          ]
+        }
+      ),
+      {
+        key: 8,
+        icon: <LogoutOutlined />,
+        label: <Link href={ApplicationPaths.LogOut}>Logout</Link>
       }
     ]),
   ]

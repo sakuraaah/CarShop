@@ -119,7 +119,8 @@ export class Logout extends Component {
     }
     return (state && state.returnUrl) ||
       fromQuery ||
-      `${window.location.origin}${ApplicationPaths.LoggedOut}`;
+      // `${window.location.origin}${ApplicationPaths.LoggedOut}`;
+      `${window.location.origin}`;
   }
 
   navigateToReturnUrl(returnUrl) {

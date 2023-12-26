@@ -17,7 +17,8 @@ namespace CarShop.Data
         {
             IQueryable<BuyItem> buyItemQuery = GetAll()
                 .Include(x => x.User)
-                .Include(x => x.Mark);
+                .Include(x => x.Mark)
+                .Include(x => x.Features);
 
             if (!string.IsNullOrWhiteSpace(query.Username))
             {
@@ -51,11 +52,16 @@ namespace CarShop.Data
             {
                 string[] requiredFeatures = query.FeatureList.Split(',');
 
-                buyItemQuery = buyItemQuery.Where(
-                    x => requiredFeatures.All(
-                        reqFeature => x.Features.Any(feature => feature.Name.Equals(reqFeature))
-                    )
-                );
+                //buyItemQuery = buyItemQuery.Where(
+                //    x => requiredFeatures.All(
+                //        reqFeature => x.Features.Any(feature => feature.Name.Equals(reqFeature))
+                //    )
+                //);
+
+                foreach (string reqFeature in requiredFeatures)
+                {
+                    buyItemQuery = buyItemQuery.Where(x => x.Features.Any(f => f.Name.Equals(reqFeature)));
+                }
             }
             if (query.PriceFrom != null)
             {

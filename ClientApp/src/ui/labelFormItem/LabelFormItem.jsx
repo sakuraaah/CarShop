@@ -34,13 +34,18 @@ export const LabelFormItem = ({
     completeClassName += ' column';
   }
 
+  const formattedAmount = (amount) => Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(amount);
+
   return (
     <StyledLabelWrapper className={completeClassName}>
       <StyledLabel>
         {label + ':'}
       </StyledLabel>
       <StyledLabel className="bold">
-        {' ' + (currency ? `${Number(labelValue).toFixed(2)}€` : (labelValue || '-'))}
+        {' ' + (currency ? `${formattedAmount(labelValue)}` : (labelValue || '-'))}
       </StyledLabel>
     </StyledLabelWrapper>
   );

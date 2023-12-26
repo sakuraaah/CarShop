@@ -14,7 +14,8 @@ namespace CarShop.Dtos
         public decimal Price { get; set; }
         public int Year { get; set; }
         public int Mileage { get; set; }
-        public string AdminStatus { get; set; }
+        public string Status { get; set; }
+        public string? AdminStatus { get; set; }
 
         public RentItemListResponseItemDto(RentItem rentItem)
         {
@@ -33,7 +34,11 @@ namespace CarShop.Dtos
             Price = rentItem.Price;
             Year = rentItem.Year;
             Mileage = rentItem.Mileage;
-            AdminStatus = rentItem.AdminStatus;
+            Status = rentItem.Status;
+            if (!string.IsNullOrWhiteSpace(rentItem.AdminStatus))
+            {
+                AdminStatus = rentItem.AdminStatus;
+            }
         }
     }
 }

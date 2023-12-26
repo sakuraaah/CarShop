@@ -51,41 +51,49 @@ export const RentSubmissionList = () => {
     )
   }
 
-  const filterItems = [
-    [
-      {
-        label: 'Technical passport number',
-        name: 'AplNr',
-        type: 'input'
-      },
-      {
-        label: 'License plate number',
-        name: 'RegNr',
-        type: 'input'
-      }
-    ],
-    [
-      {
-        label: 'Mark',
-        name: 'Mark',
-        type: 'select',
-        apiUrl: 'api/marks'
-      },
-      {
-        label: 'Model',
-        name: 'Model',
-        type: 'input'
-      },
-      {
-        label: 'Category',
-        name: 'Category',
-        type: 'select',
-        apiUrl: 'api/categories'
-      }
+  const filterItems = {
+    addUser: true,
+    addStatus: true,
+    items: [
+      [
+        {
+          label: 'Technical passport number',
+          name: 'AplNr',
+          type: 'input'
+        },
+        {
+          label: 'License plate number',
+          name: 'RegNr',
+          type: 'input'
+        }
+      ],
+      [
+        {
+          label: 'Mark',
+          name: 'Mark',
+          type: 'select',
+          apiUrl: 'api/marks'
+        },
+        {
+          label: 'Model',
+          name: 'Model',
+          type: 'input'
+        },
+        {
+          label: 'Category',
+          name: 'Category',
+          type: 'select',
+          apiUrl: 'api/categories'
+        }
+      ]
     ]
-  ]
+  }
 
   const sortItems = [
+    {
+      label: 'Status',
+      value: 'Status'
+    },
     {
       label: 'Technical passport number',
       value: 'AplNr'

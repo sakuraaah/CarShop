@@ -35,7 +35,7 @@ namespace CarShop.Data
         public CarClass CarClass { get; set; }
         public string Status { get; set; }
         public List<Status> AvailableStatusTransitions { get; set; }
-        public string AdminStatus { get; set; } = "Unconfirmed";
+        public string? AdminStatus { get; set; } = "Unconfirmed";
         public string? AdminComment { get; set; }
 
         public RentItem()

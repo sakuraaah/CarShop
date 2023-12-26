@@ -1,13 +1,25 @@
 import React from 'react';
 import styled from 'styled-components';
 
-export const Label = (props) => {
+export const Label = ({
+  label,
+  className,
+  listItem,
+  extraBold,
+  currency = false
+}) => {
 
   const StyledLabel = styled.label`
     font-size: 17px !important;
 
     &.list-item {
       font-size: 14px !important;
+      margin-bottom: 8px;
+
+      &.currency {
+        font-size: 15px !important;
+        color: black;
+      }
     }
 
     &.extra-bold {
@@ -17,21 +29,30 @@ export const Label = (props) => {
 
   let completeClassName = '';
 
-  if (props.className) {
-    completeClassName += props.className;
+  if (className) {
+    completeClassName += className;
   }
 
-  if (props.listItem) {
+  if (listItem) {
     completeClassName += ' list-item';
   }
 
-  if (props.extraBold) {
+  if (currency) {
+    completeClassName += ' currency';
+  }
+
+  if (extraBold) {
     completeClassName += ' extra-bold';
   }
 
+  const formattedAmount = (amount) => Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'EUR'
+  }).format(amount);
+
   return (
     <StyledLabel className={`styled-label ${completeClassName}`} >
-      {props.label}
+      {currency ? `${formattedAmount(label)}` : (label || '-')}
     </StyledLabel>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Button, 
   Form, 
@@ -29,6 +29,7 @@ export const CrudForm = ({
 }) => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const [labelPrefix, setLabelPrefix] = useState('')
   const [status, setStatus] = useState('')
@@ -47,6 +48,18 @@ export const CrudForm = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useEffect(() => {
+    console.log(location)
+  }, [location]);
+
+  const goBack = () => {
+    if (location.state?.fromNew) {
+      navigate(-2)
+    } else {
+      navigate(-1)
+    }
+  }
 
   const onSubmit = async (newStatus = null) => {
     try {
@@ -96,7 +109,7 @@ export const CrudForm = ({
       setAvailableStatusTransitions(response.data?.availableStatusTransitions)
     },
     onError: () => {
-      navigate(-1)
+      goBack()
     }
   });
 
@@ -107,7 +120,7 @@ export const CrudForm = ({
     },
     onSuccess: (response) => {
       message.success(`${name} is succesfully created`)
-      navigate(`/${url}/${response.data?.id}`)
+      navigate(`/${url}/${response.data?.id}`, { state: { fromNew: true } })
     }
   });
 
@@ -213,7 +226,7 @@ export const CrudForm = ({
                 )
               })}
               <Button 
-                onClick={() => navigate(-1)} 
+                onClick={goBack} 
                 label={'Return'} 
               />
             </ButtonList>

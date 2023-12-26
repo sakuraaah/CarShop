@@ -1,12 +1,14 @@
 import React from 'react';
 import { Form as AntdForm } from 'antd';
-import styled from 'styled-components';
+import dayjs from 'dayjs';
 import {
   Button,
+  CheckboxGroup,
   Collapse,
   DatePicker,
   Form,
   Input,
+  InputNumber,
   Select
 } from '../../ui';
 import { 
@@ -23,9 +25,13 @@ export const DefaultFilters = ({
   const onSubmit = (values) => {
     const parsedFilters = {
       ...values,
-      StartDate: values.StartDate?.format('YYYY-MM-DD'),
-      EndDate: values.EndDate?.format('YYYY-MM-DD')
+      ...( values.StartDate && { StartDate: values.StartDate.format('YYYY-MM-DD') }),
+      ...( values.EndDate && { EndDate: values.EndDate.format('YYYY-MM-DD') }),
+      ...( values.YearFrom && { YearFrom: values.YearFrom.year() }),
+      ...( values.YearTo && { YearTo: values.YearTo.year() }),
+      ...( values.FeatureList && { FeatureList: values.FeatureList.join(',') }),
     }
+    
     setFilters(parsedFilters)
   };
 
@@ -45,19 +51,23 @@ export const DefaultFilters = ({
           name={'EndDate'}
           label={'Created until'}
         />
-        <Input
-          name={'Username'}
-          label={'User'}
-        />
-        <Select
-          name={'Status'}
-          label={'Status'}
-          url={'api/statuses'}
-          sameAsLabel
-        />
+        {filterItems.addUser && (
+          <Input
+            name={'Username'}
+            label={'Seller'}
+          />
+        )}
+        {filterItems.addStatus && (
+          <Select
+            name={'Status'}
+            label={'Status'}
+            url={'api/statuses'}
+            sameAsLabel
+          />
+        )}
       </FilterWrapper>
 
-      {filterItems.map((filterGroup, key) => (
+      {filterItems.items.map((filterGroup, key) => (
         <FilterWrapper key={key}>
           {filterGroup.map((item, itemKey) => {
             switch (item.type) {
@@ -70,9 +80,40 @@ export const DefaultFilters = ({
                   />
                 )
 
+              case 'inputNumber':
+                return (
+                  <InputNumber
+                    key={itemKey}
+                    name={item.name}
+                    label={item.label}
+                  />
+                )
+
+              case 'dateYear':
+                return (
+                  <DatePicker 
+                    key={itemKey}
+                    name={item.name}
+                    label={item.label}
+                    picker="year"
+                    disabledDate={(date) => date > dayjs()}
+                  />
+                )
+
               case 'select':
                 return (
                   <Select
+                    key={itemKey}
+                    name={item.name}
+                    label={item.label}
+                    url={item.apiUrl}
+                    sameAsLabel
+                  />
+                )
+
+              case 'checkboxes':
+                return (
+                  <CheckboxGroup
                     key={itemKey}
                     name={item.name}
                     label={item.label}

@@ -24,3 +24,4 @@ export * from './select';
 export * from './sideBySide';
 export * from './switch';
 export * from './table';
+export * from './textArea';
