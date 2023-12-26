@@ -32,7 +32,7 @@ export const List = ({
 
   const [currentPage, setCurrentPage] = useState(1)
   const [orderBy, setOrderBy] = useState()
-  const [orderDirection, setOrderDirection] = useState('asc')
+  const [orderDirection, setOrderDirection] = useState('desc')
   const [filters, setFilters] = useState({})
 
   const StyledListItem = styled(AntdList.Item)`

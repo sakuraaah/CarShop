@@ -16,6 +16,7 @@ export * from './input';
 export * from './inputNumber';
 export * from './label';
 export * from './labelFormItem';
+export * from './link';
 export * from './list';
 export * from './loader';
 export * from './modal';

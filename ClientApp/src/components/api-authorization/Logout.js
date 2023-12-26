@@ -22,12 +22,12 @@ export class Logout extends Component {
     const action = this.props.action;
     switch (action) {
       case LogoutActions.Logout:
-        if (!!window.history.state.usr.local) {
+        // if (!!window.history.state.usr.local) { // TODO check
           this.logout(this.getReturnUrl());
-        } else {
-          // This prevents regular links to <app>/authentication/logout from triggering a logout
-          this.setState({ isReady: true, message: "The logout was not initiated from within the page." });
-        }
+        // } else {
+        //   // This prevents regular links to <app>/authentication/logout from triggering a logout
+        //   this.setState({ isReady: true, message: "The logout was not initiated from within the page." });
+        // }
         break;
       case LogoutActions.LogoutCallback:
         this.processLogoutCallback();

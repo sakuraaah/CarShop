@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Alert, 
+import {
   Button, 
   Form, 
   Label,
@@ -17,6 +16,7 @@ import {
 import useQueryApiClient from '../../utils/useQueryApiClient';
 import { message } from 'antd';
 import dayjs from 'dayjs';
+import { UserDataContext } from '../../contexts/UserDataProvider'
 
 export const CrudForm = ({
   form,
@@ -37,12 +37,15 @@ export const CrudForm = ({
   const [created, setCreated] = useState('')
   const [availableStatusTransitions, setAvailableStatusTransitions] = useState([])
 
+  const userData = useContext(UserDataContext);
+
   useEffect(() => {
     if (id) {
       getPost();
     } else {
       setLabelPrefix('Create')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const onSubmit = async (newStatus = null) => {
@@ -80,7 +83,7 @@ export const CrudForm = ({
       formData = parseResponseToForm && parseResponseToForm(formData)
       form.setFieldsValue(formData)
 
-      if (response.data?.status == 'Draft') {
+      if (response.data?.status === 'Draft') {
         setLabelPrefix('Edit')
       } else {
         setLabelPrefix('View')
