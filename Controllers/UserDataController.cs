@@ -164,6 +164,10 @@ namespace CarShop.Controllers
             {
                 if (dto.Amount <= 0) throw new Exception("Amount must be positive");
 
+                decimal balance = _transactionRepository.GetBalance(curUser);
+
+                if (balance < dto.Amount) throw new Exception("Insufficient funds");
+
                 string formattedAmount = dto.Amount.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("de-DE"));
 
                 var transaction = new Transaction
