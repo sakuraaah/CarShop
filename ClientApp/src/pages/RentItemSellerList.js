@@ -13,7 +13,7 @@ export const RentItemSellerList = () => {
   const renderTitle = (item) => {
     return (
       <>
-        {`${item.mark} ${item.model}`}
+        {`${item.mark !== 'Other' ? item.mark : ''} ${item.model}`}
       </>
     )
   }

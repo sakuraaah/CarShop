@@ -13,7 +13,7 @@ export const BuyItemSellerList = () => {
   const renderTitle = (item) => {
     return (
       <>
-        {`${item.mark} ${item.model} (${item.year})`}
+        {`${item.mark !== 'Other' ? item.mark : ''} ${item.model} (${item.year})`}
       </>
     )
   }
