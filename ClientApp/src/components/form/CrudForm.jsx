@@ -42,7 +42,7 @@ export const CrudForm = ({
   const [created, setCreated] = useState('')
   const [availableStatusTransitions, setAvailableStatusTransitions] = useState([])
 
-  const userData = useContext(UserDataContext)
+  const { data: userData } = useContext(UserDataContext)
 
   useEffect(() => {
     if (id) {

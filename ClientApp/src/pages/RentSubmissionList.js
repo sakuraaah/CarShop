@@ -14,7 +14,7 @@ import { UserDataContext } from '../contexts/UserDataProvider'
 export const RentSubmissionList = () => {
 
   const [isAdmin, setIsAdmin] = useState(false)
-  const userData = useContext(UserDataContext)
+  const { data: userData } = useContext(UserDataContext)
   const navigate = useNavigate()
 
   useEffect(() => {

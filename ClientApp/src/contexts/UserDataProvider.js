@@ -30,7 +30,7 @@ export const UserDataProvider = ({ children }) => {
   });
 
   return (
-    <UserDataContext.Provider value={userData?.data}>
+    <UserDataContext.Provider value={{data: userData?.data, refetch}}>
       {children}
     </UserDataContext.Provider>
   );

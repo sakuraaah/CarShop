@@ -32,11 +32,11 @@ import { UserDataContext } from '../contexts/UserDataProvider'
 const { Content, Footer, Sider } = AntdLayout;
 
 export const Layout = ({children}) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
 
   const location = useLocation();
-  const userData = useContext(UserDataContext);
+  const { data: userData } = useContext(UserDataContext)
 
   useEffect(() => {
     checkAuth()
@@ -140,7 +140,7 @@ export const Layout = ({children}) => {
     {
       key: 1,
       icon: <UserOutlined />,
-      label: <Link href="/profile" newPage>Edit Profile</Link>
+      label: <Link href="/profile/edit" newPage>Edit Profile</Link>
     },
     {
       key: 2,
