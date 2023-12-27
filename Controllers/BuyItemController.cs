@@ -21,6 +21,7 @@ namespace CarShop.Controllers
         private readonly IBodyTypeRepository _bodyTypeRepository;
         private readonly IColorRepository _colorRepository;
         private readonly IFeatureRepository _featureRepository;
+        private readonly ITransactionRepository _transactionRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public BuyItemController(
@@ -31,6 +32,7 @@ namespace CarShop.Controllers
             IBodyTypeRepository bodyTypeRepository,
             IColorRepository colorRepository,
             IFeatureRepository featureRepository,
+            ITransactionRepository transactionRepository,
             UserManager<ApplicationUser> userManager
             )
         {
@@ -41,6 +43,7 @@ namespace CarShop.Controllers
             _bodyTypeRepository = bodyTypeRepository;
             _colorRepository = colorRepository;
             _featureRepository = featureRepository;
+            _transactionRepository = transactionRepository;
             _userManager = userManager;
         }
 
@@ -50,10 +53,30 @@ namespace CarShop.Controllers
         {
             var response = new ApiResponseDto(() =>
             {
-                var buyItems = _buyItemRepository.GetList(query);
+                var buyItems = _buyItemRepository.GetList(query, null);
                 return buyItems;
             });
             return Ok(response);
+        }
+
+        [HttpGet("buyer")]
+        public async Task<IActionResult> GetBuyerList([FromQuery] BuyItemQueryDto query)
+        {
+            var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var curUser = await _userManager.FindByIdAsync(currentUserID);
+            if (curUser == null) throw new Exception("User not found");
+
+            if (await _userManager.IsInRoleAsync(curUser, "Buyer"))
+            {
+                var response = new ApiResponseDto(() =>
+                {
+                    var buyItems = _buyItemRepository.GetList(query, curUser, "Buyer");
+                    return buyItems;
+                });
+                return Ok(response);
+            }
+
+            return Forbid();
         }
 
         [HttpGet("seller")]
@@ -67,8 +90,7 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    query.Username = curUser.UserName;
-                    var buyItems = _buyItemRepository.GetList(query, "Seller");
+                    var buyItems = _buyItemRepository.GetList(query, curUser, "Seller");
                     return buyItems;
                 });
                 return Ok(response);
@@ -88,7 +110,7 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var buyItems = _buyItemRepository.GetList(query, "Admin");
+                    var buyItems = _buyItemRepository.GetList(query, null, "Admin");
                     return buyItems;
                 });
                 return Ok(response);
@@ -165,9 +187,21 @@ namespace CarShop.Controllers
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
 
-            if (curUser == null || await _userManager.IsInRoleAsync(curUser, "Buyer"))
+            if (curUser == null)
             {
-                var buyItem = _buyItemRepository.GetItem(id, null, "Buyer");
+                var buyItem = _buyItemRepository.GetItem(id, null, "Public");
+                if (buyItem == null) return NotFound();
+
+                var response = new ApiResponseDto(() =>
+                {
+                    return buyItem;
+                });
+                return Ok(response);
+            }
+
+            if (await _userManager.IsInRoleAsync(curUser, "Buyer"))
+            {
+                var buyItem = _buyItemRepository.GetItem(id, curUser, "Buyer");
                 if (buyItem == null) return NotFound();
 
                 var response = new ApiResponseDto(() =>
@@ -215,7 +249,7 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var buyItem = _buyItemRepository.Get(id, curUser);
+                    var buyItem = _buyItemRepository.Get(id, curUser, "Seller");
                     if (buyItem == null) throw new Exception("Buy item not found");
 
                     if (buyItem.Status != "Draft") throw new Exception("Only drafts can be edited");
@@ -317,7 +351,7 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var buyItem = _buyItemRepository.Get(id, curUser);
+                    var buyItem = _buyItemRepository.Get(id, curUser, "Seller");
                     if (buyItem == null) throw new Exception("Buy item not found");
 
                     if (buyItem.AdminStatus == "Blocked") throw new Exception("You cannot update blocked item");
@@ -356,7 +390,7 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var buyItem = _buyItemRepository.Get(id, null);
+                    var buyItem = _buyItemRepository.Get(id, null, "Admin");
                     if (buyItem == null) throw new Exception("Buy item not found");
 
                     if (buyItem.Status != "Submitted") throw new Exception("You can only update submitted buy items");
@@ -378,6 +412,59 @@ namespace CarShop.Controllers
             return Forbid();
         }
 
+        [HttpPost("{id}/buy")]
+        public async Task<IActionResult> Buy(int id)
+        {
+            var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var curUser = await _userManager.FindByIdAsync(currentUserID);
+            if (curUser == null) throw new Exception("User not found");
+
+            if (await _userManager.IsInRoleAsync(curUser, "Buyer"))
+            {
+                var response = new ApiResponseDto(() =>
+                {
+                    var buyItem = _buyItemRepository.Get(id, curUser, "Buyer");
+                    if (buyItem == null) throw new Exception("Buy item not found");
+
+                    decimal curUserbalance = _transactionRepository.GetBalance(curUser);
+
+                    if (curUserbalance < buyItem.Price) throw new Exception("Insufficient funds");
+
+                    string formattedAmount = buyItem.Price.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("de-DE"));
+                    string vehicleTitle = buyItem.Mark.Name != "Other" ? buyItem.Mark.Name + " " + buyItem.Model : buyItem.Model;
+
+                    var buyerTransaction = new Transaction
+                    {
+                        User = curUser,
+                        Amount = buyItem.Price * -1,
+                        Description = "Bought " + vehicleTitle + " for " + formattedAmount,
+                    };
+
+                    var sellerTransaction = new Transaction
+                    {
+                        User = buyItem.User,
+                        Amount = buyItem.Price,
+                        Description = "Sold " + vehicleTitle + " for " + formattedAmount,
+                    };
+
+                    _transactionRepository.Create(buyerTransaction);
+                    _transactionRepository.Create(sellerTransaction);
+
+                    string[] statusNames = { };
+                    List<Status> availableStatusTransitions = _statusRepository.GetByName(statusNames).ToList();
+
+                    buyItem.BuyerId = curUser.Id;
+                    buyItem.Status = "Sold";
+                    buyItem.AvailableStatusTransitions = availableStatusTransitions;
+
+                    return _buyItemRepository.Update(buyItem);
+                });
+                return Ok(response);
+            }
+
+            return Forbid();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -389,7 +476,7 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var buyItem = _buyItemRepository.Get(id, null);
+                    var buyItem = _buyItemRepository.Get(id, null, "Admin");
                     if (buyItem == null) throw new Exception("Buy item not found");
 
                     _buyItemRepository.Delete(buyItem);

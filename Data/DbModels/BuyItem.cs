@@ -32,6 +32,7 @@ namespace CarShop.Data
         public List<Status> AvailableStatusTransitions { get; set; }
         public string? AdminStatus { get; set; } = "Unconfirmed";
         public string? AdminComment { get; set; }
+        public string? BuyerId { get; set; }
 
         public BuyItem()
         {

@@ -13,7 +13,7 @@ namespace CarShop.Data
             return _context.BuyItems;
         }
 
-        public BuyItemListResponseDto GetList(BuyItemQueryDto query, string userRole = "Buyer")
+        public BuyItemListResponseDto GetList(BuyItemQueryDto query, ApplicationUser? user, string userRole = "Public")
         {
             IQueryable<BuyItem> buyItemQuery = GetAll()
                 .Include(x => x.User)
@@ -107,10 +107,16 @@ namespace CarShop.Data
 
             switch (userRole)
             {
-                case "Buyer":
+                case "Public":
                     buyItemQuery = buyItemQuery
                         .Where(x => x.Status.Equals("Submitted"))
                         .Where(x => x.AdminStatus != "Blocked");
+                    break;
+
+                case "Buyer":
+                    buyItemQuery = buyItemQuery
+                        .Where(x => x.BuyerId != null && x.BuyerId.Equals(user.Id))
+                        .Where(x => x.Status.Equals(query.Status));
                     break;
 
                 case "Seller":
@@ -118,6 +124,7 @@ namespace CarShop.Data
                     {
                         buyItemQuery = buyItemQuery.Where(x => x.Status.Equals(query.Status));
                     }
+                    buyItemQuery = buyItemQuery.Where(x => x.User.Equals(user));
                     break;
 
                 case "Admin":
@@ -190,30 +197,41 @@ namespace CarShop.Data
             return buyItemResponseDto;
         }
 
-        public BuyItem? Get(int id, ApplicationUser? user)
+        public BuyItem? Get(int id, ApplicationUser? user, string userRole = "Buyer")
         {
             IQueryable<BuyItem> buyItemQuery = GetAll()
+                .Include(x => x.User)
                 .Include(x => x.Category)
                 .Include(x => x.Mark)
                 .Include(x => x.BodyType)
                 .Include(x => x.Color)
                 .Include(x => x.Features)
-                .Include(x => x.AvailableStatusTransitions)
-                .Where(x => x.Id.Equals(id));
+                .Include(x => x.AvailableStatusTransitions);
 
-            if (user != null)
+            switch (userRole)
             {
-                buyItemQuery = buyItemQuery.Where(x => x.User.Equals(user));
-            }
-            else
-            {
-                buyItemQuery = buyItemQuery.Where(x => x.Status != "Draft");
+                case "Buyer":
+                    buyItemQuery = buyItemQuery.Where(x => (x.Status.Equals("Submitted") && x.AdminStatus != "Blocked"));
+                    break;
+
+                case "Seller":
+                    buyItemQuery = buyItemQuery.Where(x => x.User.Equals(user));
+                    break;
+
+                case "Admin":
+                    buyItemQuery = buyItemQuery.Where(x => x.Status != "Draft");
+                    break;
+
+                default:
+                    break;
             }
 
-            return buyItemQuery.FirstOrDefault();
+            return buyItemQuery
+                .Where(x => x.Id.Equals(id))
+                .FirstOrDefault();
         }
 
-        public BuyItemResponseDto? GetItem(int id, ApplicationUser? user, string userRole = "Buyer")
+        public BuyItemResponseDto? GetItem(int id, ApplicationUser? user, string userRole = "Public")
         {
             IQueryable<BuyItem> buyItemQuery = GetAll()
                 .Include(x => x.User)
@@ -227,14 +245,18 @@ namespace CarShop.Data
 
             switch (userRole)
             {
-                case "Buyer":
+                case "Public":
                     buyItemQuery = buyItemQuery
                         .Where(x => x.Status.Equals("Submitted"))
                         .Where(x => x.AdminStatus != "Blocked");
                     break;
 
+                case "Buyer":
+                    buyItemQuery = buyItemQuery.Where(x => (x.Status.Equals("Submitted") && x.AdminStatus != "Blocked") || (x.BuyerId != null && x.BuyerId.Equals(user.Id)));
+                    break;
+
                 case "Seller":
-                    buyItemQuery = buyItemQuery.Where(x => x.Status.Equals("Submitted") || x.User.Equals(user));
+                    buyItemQuery = buyItemQuery.Where(x => (x.Status.Equals("Submitted") && x.AdminStatus != "Blocked") || x.User.Equals(user));
                     break;
 
                 case "Admin":
