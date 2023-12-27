@@ -114,9 +114,11 @@ namespace CarShop.Data
                     break;
 
                 case "Buyer":
-                    buyItemQuery = buyItemQuery
-                        .Where(x => x.BuyerId != null && x.BuyerId.Equals(user.Id))
-                        .Where(x => x.Status.Equals(query.Status));
+                    if (!string.IsNullOrWhiteSpace(query.Status))
+                    {
+                        buyItemQuery = buyItemQuery.Where(x => x.Status.Equals(query.Status));
+                    }
+                    buyItemQuery = buyItemQuery.Where(x => x.BuyerId != null && x.BuyerId.Equals(user.Id));
                     break;
 
                 case "Seller":
