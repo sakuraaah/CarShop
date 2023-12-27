@@ -44,6 +44,7 @@ namespace CarShop
             builder.Services.AddScoped<IMarkRepository, MarkRepository>();
             builder.Services.AddScoped<IBodyTypeRepository, BodyTypeRepository>();
             builder.Services.AddScoped<IRentCategoryRepository, RentCategoryRepository>();
+            builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
             builder.Services.AddTransient<IPostsService, PostsService>();
             builder.Services.AddSingleton<PostsDataContext>();
 

@@ -22,5 +22,6 @@ namespace CarShop.Models
         [JsonIgnore] public List<RentSubmission> RentSubmissions { get; set; }
         [JsonIgnore] public List<RentItem> RentItems { get; set; }
         [JsonIgnore] public List<BuyItem> BuyItems { get; set; }
+        [JsonIgnore] public List<Transaction> Transactions { get; set; }
     }
 }
