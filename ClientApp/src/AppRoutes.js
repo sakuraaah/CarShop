@@ -3,6 +3,7 @@ import ApiAuthorzationRoutes from './components/api-authorization/ApiAuthorizati
 import { CrudRentSubmissionPage } from "./pages/CrudRentSubmissionPage";
 import { RentSubmissionList } from "./pages/RentSubmissionList";
 
+import { CrudRentItemPage } from "./pages/CrudRentItemPage";
 import { RentItemList } from "./pages/RentItemList";
 import { RentItemSellerList } from "./pages/RentItemSellerList";
 
@@ -29,6 +30,16 @@ const AppRoutes = [
     path: '/profile/for-sale',
     requireAuth: true,
     element: <BuyItemSellerList />
+  },
+  {
+    path: '/new-rent-item',
+    requireAuth: true,
+    element: <CrudRentItemPage />
+  },
+  {
+    path: '/rent-item/:id',
+    requireAuth: true,
+    element: <CrudRentItemPage />
   },
   {
     path: '/rental',

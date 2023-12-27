@@ -185,12 +185,18 @@ export const BuyItemSellerList = () => {
     }
   ]
 
+  const createNewButton = {
+    label: 'Create new Buy item',
+    url: '/new-buy-item'
+  }
+
   return (
     <StyledPage>
       <List
         title={'Your listed vehicles for sale'}
         url={'buy-item'}
         apiUrl={'api/buy-items/seller'}
+        button={createNewButton}
         filterItems={filterItems}
         sortItems={sortItems}
         renderTitle={renderTitle}

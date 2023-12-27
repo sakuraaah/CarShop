@@ -6,6 +6,7 @@ import {
   Label,
   LabelFormItem,
   Loader,
+  Input,
 } from '../../ui';
 import { 
   ButtonList,
@@ -25,6 +26,8 @@ export const CrudForm = ({
   name,
   parseResponseToForm,
   parseFormToSubmit,
+  disabled,
+  setDisabled,
   children
 }) => {
   const { id } = useParams()
@@ -32,6 +35,7 @@ export const CrudForm = ({
   const location = useLocation()
 
   const [labelPrefix, setLabelPrefix] = useState('')
+  const [seller, setSeller] = useState('')
   const [status, setStatus] = useState('')
   const [adminStatus, setAdminStatus] = useState('')
   const [adminComment, setAdminComment] = useState('')
@@ -48,10 +52,6 @@ export const CrudForm = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
-
-  useEffect(() => {
-    console.log(location)
-  }, [location]);
 
   const goBack = () => {
     if (location.state?.fromNew) {
@@ -72,7 +72,8 @@ export const CrudForm = ({
       } else {
         if (newStatus) {
           updatePostStatus({
-            status: newStatus
+            status: newStatus,
+            comment: form.getFieldValue('comment')
           })
         } else {
           let options = values
@@ -100,9 +101,11 @@ export const CrudForm = ({
         setLabelPrefix('Edit')
       } else {
         setLabelPrefix('View')
+        setDisabled(true)
       }
 
       setStatus(response.data?.status)
+      setSeller(response.data?.user?.userName)
       setAdminStatus(response.data?.adminStatus)
       setAdminComment(response.data?.adminComment)
       setCreated(dayjs(response.data?.created).format('DD-MM-YYYY'))
@@ -143,6 +146,8 @@ export const CrudForm = ({
       message.success(`Status for ${name} is succesfully updated`)
 
       setLabelPrefix('View')
+      setDisabled(true)
+
       setStatus(response.data?.status)
       setAdminStatus(response.data?.adminStatus)
       setAdminComment(response.data?.adminComment)
@@ -152,12 +157,22 @@ export const CrudForm = ({
 
   return (
     <StyledPage>
-      <Form form={form} >
+      <Form 
+        form={form}
+        disabled={disabled}
+      >
         <FormHeader>
           <Label 
             label={`${labelPrefix} ${name}`} 
             extraBold 
           />
+
+          {seller &&
+            <LabelFormItem 
+              label={'Seller'} 
+              labelValue={seller}
+            />
+          }
 
           {status &&
             <LabelFormItem 
@@ -194,40 +209,71 @@ export const CrudForm = ({
 
           <StyledWrapper>
             <ButtonList>
-              <Button 
-                htmlType="submit" 
-                onClick={() => onSubmit()} 
-                type="primary" 
-                label={'Save'} 
-              />
-              {availableStatusTransitions.map((status) => {
-                let statusName;
 
-                switch (status.name) {
-                  case 'Submitted':
-                    statusName = 'Submit'
-                    break
-
-                  case 'Cancelled':
-                    statusName = 'Cancel'
-                    break
-
-                  default:
-                    statusName = status.name
-                    break
-                }
-
-                return (
+              {(!id || seller == userData?.userName) && (
+                <>
                   <Button 
                     htmlType="submit" 
-                    onClick={() => onSubmit(status.name)} 
-                    label={statusName} 
+                    onClick={() => onSubmit()} 
+                    type="primary" 
+                    label={'Save'} 
                   />
-                )
-              })}
+
+                  {availableStatusTransitions.map((status) => {
+                    let statusName;
+
+                    switch (status.name) {
+                      case 'Submitted':
+                        statusName = 'Submit'
+                        break
+
+                      case 'Cancelled':
+                        statusName = 'Cancel'
+                        break
+
+                      default:
+                        statusName = status.name
+                        break
+                    }
+
+                    return (
+                      <Button 
+                        htmlType="submit" 
+                        onClick={() => onSubmit(status.name)} 
+                        label={statusName} 
+                        disabled={false}
+                      />
+                    )
+                  })}
+                </>
+              )}
+
+              {(userData?.role == 'Admin') && (
+                <>
+                  <Input
+                    name="comment"
+                    label={'Provide a comment to seller'}
+                    disabled={status != 'Submitted'}
+                  />
+                  <Button 
+                    onClick={() => onSubmit('Confirmed')} 
+                    label={'Approve'} 
+                    disabled={status != 'Submitted'}
+                    type="primary"
+                  />
+                  <Button 
+                    onClick={() => onSubmit('Blocked')} 
+                    label={'Block'} 
+                    disabled={status != 'Submitted'}
+                    danger
+                  />
+                </>
+              )}
+
               <Button 
                 onClick={goBack} 
-                label={'Return'} 
+                label={'Return'}
+                disabled={false}
               />
             </ButtonList>
           </StyledWrapper>

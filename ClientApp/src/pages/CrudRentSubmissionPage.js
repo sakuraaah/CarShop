@@ -19,6 +19,8 @@ import dayjs from 'dayjs';
 
 export const CrudRentSubmissionPage = () => {
   const [form] = AntdForm.useForm();
+
+  const [disabled, setDisabled] = useState(false);
   const [imageUrl, setImageUrl] = useState();
 
   const parseFormToSubmit = (values) => {
@@ -58,6 +60,8 @@ export const CrudRentSubmissionPage = () => {
         name={'Rent submission'}
         parseFormToSubmit={parseFormToSubmit}
         parseResponseToForm={parseResponseToForm}
+        disabled={disabled}
+        setDisabled={setDisabled}
       >
         <StyledWrapper>
           <Label label={'Rent submission image:'} extraBold />
@@ -70,6 +74,7 @@ export const CrudRentSubmissionPage = () => {
             setImageUrl={setImageUrl}
             name="imgSrc"
             rules={[{ required: true }]}
+            disabled={disabled}
           />
         </StyledWrapper>
 

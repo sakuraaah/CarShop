@@ -22,7 +22,8 @@ export const RentItemList = () => {
     return (
       <>
         <Label 
-          label={item.price} 
+          label={item.price}
+          postLabel={item.rentCategory === 'Daily' ? 'day' : 'min'}
           listItem 
           extraBold
           currency
@@ -37,10 +38,6 @@ export const RentItemList = () => {
 
         <br/>
 
-        <LabelFormItem 
-          label={'Mileage'} 
-          labelValue={`${item.mileage} km`} 
-        />
         <LabelFormItem 
           label={'Seller'} 
           labelValue={item.user.userName}

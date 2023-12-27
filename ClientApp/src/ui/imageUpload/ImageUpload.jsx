@@ -10,7 +10,7 @@ export const ImageUpload = ({
   setImageUrl,
   name,
   rules,
-  view = false
+  disabled = false
 }) => {
   const [loading, setLoading] = useState(false);
   const [isExternal, setIsExternal] = useState(false);
@@ -49,7 +49,7 @@ export const ImageUpload = ({
     }
   };
 
-  return view ? (
+  return disabled ? (
     <Image
       src={imageUrl}
       width={200}

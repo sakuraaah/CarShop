@@ -13,7 +13,7 @@ export const RentItemSellerList = () => {
   const renderTitle = (item) => {
     return (
       <>
-        {`${item.mark} ${item.model} (${item.year})`}
+        {`${item.mark} ${item.model}`}
       </>
     )
   }
@@ -22,7 +22,8 @@ export const RentItemSellerList = () => {
     return (
       <>
         <Label 
-          label={item.price} 
+          label={item.price}
+          postLabel={item.rentCategory === 'Daily' ? 'day' : 'min'}
           listItem 
           extraBold
           currency
@@ -31,19 +32,16 @@ export const RentItemSellerList = () => {
         <br/>
 
         <Label 
-          label={item.description} 
+          label={item.carClass} 
           listItem 
+          extraBold
         />
 
         <br/>
 
         <LabelFormItem 
-          label={'Mileage'} 
-          labelValue={`${item.mileage} km`} 
-        />
-        <LabelFormItem 
           label={'Status'} 
-          labelValue={item.user.status}
+          labelValue={item.status}
         />
       </>
     )
@@ -137,12 +135,18 @@ export const RentItemSellerList = () => {
     }
   ]
 
+  const createNewButton = {
+    label: 'Create new Rent Submission',
+    url: '/new-rent-submission'
+  }
+
   return (
     <StyledPage>
       <List
         title={'Your listed rentals'}
         url={'rent-item'}
         apiUrl={'api/rent-items/seller'}
+        button={createNewButton}
         filterItems={filterItems}
         sortItems={sortItems}
         renderTitle={renderTitle}

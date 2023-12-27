@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { List as AntdList } from 'antd';
 import useQueryApiClient from '../../utils/useQueryApiClient';
 import { DefaultFilters } from '../../components/filter/DefaultFilters';
 import {
   Avatar,
+  Button,
   Image,
   Form,
   Label,
@@ -22,6 +24,7 @@ export const List = ({
   title = 'List',
   url,
   apiUrl,
+  button,
   sortItems,
   filterItems,
   dataSource = [],
@@ -29,6 +32,7 @@ export const List = ({
   renderDescription,
   ...props
 }) => {
+  const navigate = useNavigate()
 
   const [currentPage, setCurrentPage] = useState(1)
   const [orderBy, setOrderBy] = useState()
@@ -112,6 +116,16 @@ export const List = ({
       </FormHeader>
 
       <BorderBottom />
+
+      {button && (
+        <Button 
+          onClick={() => navigate(button.url)}
+          label={button.label} 
+          style={{
+            marginBottom: '30px',
+          }}
+        />
+      )}
 
       {sortItems && (
         <>

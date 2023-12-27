@@ -19,6 +19,7 @@ namespace CarShop.Data
                 .Include(x => x.User)
                 .Include(x => x.Mark)
                 .Include(x => x.CarClass)
+                .Include(x => x.RentCategory)
                 .Include(x => x.Features);
 
             if (!string.IsNullOrWhiteSpace(query.Username))

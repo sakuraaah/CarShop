@@ -90,5 +90,12 @@ export const ButtonList = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: end;
+  align-items: center;
   gap: 16px;
+
+  .ant-form-item {
+    width: 100%;
+    max-width: 400px;
+    margin-right: auto;
+  }
 `;

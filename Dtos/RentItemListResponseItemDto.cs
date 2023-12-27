@@ -11,9 +11,8 @@ namespace CarShop.Dtos
         public string Mark { get; set; }
         public string Model { get; set; }
         public string CarClass { get; set; }
+        public string RentCategory { get; set; }
         public decimal Price { get; set; }
-        public int Year { get; set; }
-        public int Mileage { get; set; }
         public string Status { get; set; }
         public string? AdminStatus { get; set; }
 
@@ -31,9 +30,8 @@ namespace CarShop.Dtos
             Mark = rentItem.Mark.Name;
             Model = rentItem.Model;
             CarClass = rentItem.CarClass.Name;
+            RentCategory = rentItem.RentCategory.Name;
             Price = rentItem.Price;
-            Year = rentItem.Year;
-            Mileage = rentItem.Mileage;
             Status = rentItem.Status;
             if (!string.IsNullOrWhiteSpace(rentItem.AdminStatus))
             {

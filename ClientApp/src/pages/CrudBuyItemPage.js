@@ -21,6 +21,8 @@ import dayjs from 'dayjs';
 
 export const CrudBuyItemPage = () => {
   const [form] = AntdForm.useForm();
+
+  const [disabled, setDisabled] = useState(false);
   const [imageUrl, setImageUrl] = useState();
 
   const parseFormToSubmit = (values) => {
@@ -82,6 +84,8 @@ export const CrudBuyItemPage = () => {
         name={'Vehicle'}
         parseFormToSubmit={parseFormToSubmit}
         parseResponseToForm={parseResponseToForm}
+        disabled={disabled}
+        setDisabled={setDisabled}
       >
         <StyledWrapper>
           <Label label={'Vehicle image:'} extraBold />
@@ -94,6 +98,7 @@ export const CrudBuyItemPage = () => {
             setImageUrl={setImageUrl}
             name="imgSrc"
             rules={[{ required: true }]}
+            disabled={disabled}
           />
         </StyledWrapper>
 

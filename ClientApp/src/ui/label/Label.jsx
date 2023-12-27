@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 export const Label = ({
   label,
+  postLabel,
   className,
   listItem,
   extraBold,
@@ -52,7 +53,7 @@ export const Label = ({
 
   return (
     <StyledLabel className={`styled-label ${completeClassName}`} >
-      {currency ? `${formattedAmount(label)}` : (label || '-')}
+      {currency ? `${formattedAmount(label)}${postLabel ? `/${postLabel}` : ''}` : (label || '-')}
     </StyledLabel>
   );
 };

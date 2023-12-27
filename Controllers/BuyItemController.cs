@@ -145,7 +145,7 @@ namespace CarShop.Controllers
                         Features = features,
                         Mileage = dto.Mileage,
                         Year = dto.Year,
-                        buyItem.EngPower = dto.EngPower,
+                        EngPower = dto.EngPower,
                         Status = "Draft",
                         AvailableStatusTransitions = availableStatusTransitions,
                     };
