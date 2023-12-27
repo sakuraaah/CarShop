@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate} from 'react-router-dom';
 import {
+  Button,
   Label,
   LabelFormItem,
   List
@@ -7,8 +9,19 @@ import {
 import { 
   StyledPage
 } from '../styles/layout/form';
+import { UserDataContext } from '../contexts/UserDataProvider'
 
 export const RentSubmissionList = () => {
+
+  const [isAdmin, setIsAdmin] = useState(false)
+  const userData = useContext(UserDataContext)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (userData?.role === 'Admin') {
+      setIsAdmin(true)
+    }
+  }, [userData]);
 
   const renderTitle = (item) => {
     return (
@@ -49,6 +62,46 @@ export const RentSubmissionList = () => {
         />
       </>
     )
+  }
+
+  const renderAction = (item) => {
+    switch (item.adminStatus) {
+      case 'Confirmed': 
+        return isAdmin ? (
+            <>This vehicle is confirmed</>
+          ) : (
+            <Button 
+              type="link" 
+              label="Create rental item" 
+              size="small"
+              onClick={() => navigate(`/new-rent-item`, { state: { rentSubmissionId: item.id } })}
+            />
+          )
+
+      case 'Blocked': 
+        return <>This vehicle is blocked</>
+      
+      default: 
+        switch (item.status) {
+          case 'Submitted':
+            return isAdmin ? (
+                <Button 
+                  type="link" 
+                  label="Change status" 
+                  size="small"
+                  onClick={() => navigate(`/rent-submission/${item.id}`)} 
+                />
+              ) : (
+                <>Wait until administrator approves your submission</>
+              )
+
+          case 'Draft':
+            return <>Submit this item to administrator to recieve approval</>
+
+          default:
+            return <>This vehicle is cancelled</>
+        }
+    }
   }
 
   const filterItems = {
@@ -127,13 +180,14 @@ export const RentSubmissionList = () => {
   return (
     <StyledPage>
       <List
-        title={'Rent submission List'}
+        title={isAdmin ? 'Rent submissions' : 'Your Rent submissions'}
         url={'rent-submission'}
         apiUrl={'api/rent-submissions'}
         filterItems={filterItems}
         sortItems={sortItems}
         renderTitle={renderTitle}
         renderDescription={renderDescription}
+        renderAction={renderAction}
       />
     </StyledPage>
   )

@@ -13,7 +13,7 @@ export const RentItemList = () => {
   const renderTitle = (item) => {
     return (
       <>
-        {`${item.mark !== 'Other' ? item.mark : ''} ${item.model} (${item.year})`}
+        {`${item.mark !== 'Other' ? item.mark : ''} ${item.model}`}
       </>
     )
   }
@@ -32,8 +32,9 @@ export const RentItemList = () => {
         <br/>
 
         <Label 
-          label={item.description} 
+          label={item.carClass} 
           listItem 
+          extraBold
         />
 
         <br/>

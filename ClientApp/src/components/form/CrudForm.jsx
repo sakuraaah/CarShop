@@ -42,7 +42,7 @@ export const CrudForm = ({
   const [created, setCreated] = useState('')
   const [availableStatusTransitions, setAvailableStatusTransitions] = useState([])
 
-  const userData = useContext(UserDataContext);
+  const userData = useContext(UserDataContext)
 
   useEffect(() => {
     if (id) {
@@ -242,6 +242,7 @@ export const CrudForm = ({
                         onClick={() => onSubmit(status.name)} 
                         label={statusName} 
                         disabled={false}
+                        danger={status.name === 'Cancelled'}
                       />
                     )
                   })}

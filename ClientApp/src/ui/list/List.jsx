@@ -30,6 +30,7 @@ export const List = ({
   dataSource = [],
   renderTitle,
   renderDescription,
+  renderAction,
   ...props
 }) => {
   const navigate = useNavigate()
@@ -44,6 +45,16 @@ export const List = ({
     flex-direction: column;
     gap: 20px;
     margin-block-start: 40px !important;
+
+    .ant-list-item-action {
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      width: 200px;
+      height: 66px;
+      margin-inline-start: 0 !important;
+      margin-bottom: 0;
+    }
 
     .ant-image {
       order: 1;
@@ -94,6 +105,7 @@ export const List = ({
             src={item.imgSrc}
           />
         }
+        actions={renderAction ? [renderAction(item)] : undefined}
       >
         <AntdList.Item.Meta
           avatar={
