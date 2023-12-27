@@ -78,6 +78,11 @@ export const FormHeader = styled.div`
   .styled-label {
     font-size: 21px !important;
   }
+
+  .ant-btn {
+    width: 100%;
+    max-width: 200px;
+  }
 `;
 
 export const BorderBottom = styled.div`
@@ -93,9 +98,27 @@ export const ButtonList = styled.div`
   align-items: center;
   gap: 16px;
 
+  &.left {
+    justify-content: start;
+  }
+
+  &.small-gap {
+    gap: 8px;
+  }
+
   .ant-form-item {
     width: 100%;
     max-width: 400px;
     margin-right: auto;
+  }
+`;
+
+export const Color = styled.p`
+  &.green {
+    color: #52c41a;
+  }
+
+  &.red {
+    color: #ff4d4f;
   }
 `;

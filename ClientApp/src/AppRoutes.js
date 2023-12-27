@@ -8,10 +8,13 @@ import { RentSubmissionList } from "./pages/RentSubmissionList";
 import { CrudRentItemPage } from "./pages/CrudRentItemPage";
 import { RentItemList } from "./pages/RentItemList";
 import { RentItemSellerList } from "./pages/RentItemSellerList";
+import { RentItemAdminList } from "./pages/RentItemAdminList";
 
 import { CrudBuyItemPage } from "./pages/CrudBuyItemPage";
 import { BuyItemList } from "./pages/BuyItemList";
 import { BuyItemSellerList } from "./pages/BuyItemSellerList";
+import { BuyItemAdminList } from "./pages/BuyItemAdminList";
+import { BuyItemBuyerList } from "./pages/BuyItemBuyerList";
 
 const AppRoutes = [
   {
@@ -24,6 +27,7 @@ const AppRoutes = [
     requireAuth: true,
     element: <ProfilePage />
   },
+
   {
     path: '/new-buy-item',
     requireAuth: true,
@@ -43,6 +47,17 @@ const AppRoutes = [
     element: <BuyItemSellerList />
   },
   {
+    path: '/admin/for-sale',
+    requireAuth: true,
+    element: <BuyItemAdminList />
+  },
+  {
+    path: '/profile/bought-vehicles',
+    requireAuth: true,
+    element: <BuyItemBuyerList />
+  },
+
+  {
     path: '/new-rent-item',
     requireAuth: true,
     element: <CrudRentItemPage />
@@ -60,6 +75,12 @@ const AppRoutes = [
     requireAuth: true,
     element: <RentItemSellerList />
   },
+  {
+    path: '/admin/rental',
+    requireAuth: true,
+    element: <RentItemAdminList />
+  },
+
   {
     path: '/new-rent-submission',
     requireAuth: true,

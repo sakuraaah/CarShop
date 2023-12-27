@@ -11,6 +11,7 @@ import {
   FileTextOutlined,
   LoginOutlined,
   LogoutOutlined,
+  SecurityScanOutlined,
   UserOutlined,
   UserAddOutlined,
 } from '@ant-design/icons';
@@ -59,42 +60,10 @@ export const Layout = ({children}) => {
     return null;
   }
 
-  const mainMenuItems = [
-    {
-      key: 1,
-      icon: <CarOutlined />,
-      label: <Link href="/">Buy</Link>
-    },
-    {
-      key: 2,
-      icon: <DollarOutlined />,
-      label: <Link href="/rental">Rental</Link>
-    },
-    ...[['Admin', 'Seller'].includes(userData?.role) &&
-      {
-        key: 3,
-        icon: <FileTextOutlined />,
-        label: <Link href="/rent-submissions">Submissions</Link>
-      }
-    ],
-    ...(!isAuthenticated ? [
-      {
-        key: 4,
-        icon: <UserAddOutlined />,
-        label: <Link href={ApplicationPaths.Register}>Register</Link>
-      },
-      {
-        key: 5,
-        icon: <LoginOutlined />,
-        label: <Link href={ApplicationPaths.Login}>Login</Link>
-      }
-    ] : [
-      (
-        userData?.role !== 'Seller' ? {
-          key: 4,
-          icon: <UserOutlined />,
-          label: <Link href="/profile">Profile</Link>
-        } : {   
+  const mainMenuProfile = (role) => {
+    switch (role) {
+      case 'Seller':
+        return {   
           key: 4,
           icon: <UserOutlined />,
           label: 'Profile',
@@ -125,9 +94,102 @@ export const Layout = ({children}) => {
             },
           ]
         }
-      ),
+
+      case 'Buyer':
+        return {   
+          key: 4,
+          icon: <UserOutlined />,
+          label: 'Profile',
+          children: [
+            {
+              type: 'group',
+              label: 'Profile',
+              children: [
+                {
+                  key: 5,
+                  label: <Link href="/profile">View Profile</Link>,
+                }
+              ],
+            },
+            {
+              type: 'group',
+              label: 'Your items',
+              children: [
+                {
+                  key: 6,
+                  label: <Link href="/profile/bought-vehicles">Your bought vehicles</Link>,
+                },
+                {
+                  key: 7,
+                  label: <Link href="/profile/rent-orders">Your Rent Orders</Link>,
+                }
+              ],
+            },
+          ]
+        }
+
+      case 'Admin':
+        return {
+          key: 4,
+          icon: <UserOutlined />,
+          label: <Link href="/profile">Profile</Link>
+        }
+
+      default:
+        return null
+    }
+  } 
+
+  const mainMenuItems = [
+    {
+      key: 1,
+      icon: <CarOutlined />,
+      label: <Link href="/">Buy</Link>
+    },
+    {
+      key: 2,
+      icon: <DollarOutlined />,
+      label: <Link href="/rental">Rental</Link>
+    },
+    ...[['Admin', 'Seller'].includes(userData?.role) &&
       {
-        key: 8,
+        key: 3,
+        icon: <FileTextOutlined />,
+        label: <Link href="/rent-submissions">Submissions</Link>
+      }
+    ],
+    ...(!isAuthenticated ? [
+      {
+        key: 4,
+        icon: <UserAddOutlined />,
+        label: <Link href={ApplicationPaths.Register}>Register</Link>
+      },
+      {
+        key: 5,
+        icon: <LoginOutlined />,
+        label: <Link href={ApplicationPaths.Login}>Login</Link>
+      }
+    ] : [
+      mainMenuProfile(userData?.role),
+      ...[userData?.role == 'Admin' &&
+        {
+          key: 8,
+          icon: <SecurityScanOutlined />,
+          label: 'Admin Console',
+          children: [
+            {
+              key: 9,
+              label: <Link href="/admin/for-sale">Check all vehicles</Link>,
+            },
+            {
+              key: 10,
+              label: <Link href="/admin/rental">Check all rentals</Link>,
+            }
+          ],
+        }
+      ],
+      {
+        key: 11,
         icon: <LogoutOutlined />,
         label: <Link href={ApplicationPaths.LogOut}>Logout</Link>
       }
