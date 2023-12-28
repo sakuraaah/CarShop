@@ -20,6 +20,7 @@ export * from './link';
 export * from './list';
 export * from './loader';
 export * from './modal';
+export * from './popconfirm';
 export * from './select';
 export * from './sideBySide';
 export * from './switch';

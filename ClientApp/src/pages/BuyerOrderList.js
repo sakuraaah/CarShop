@@ -1,19 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Form as AntdForm, message } from 'antd';
+import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 import dayjs from 'dayjs';
 import {
   Button,
-  Form,
-  ImageUpload,
-  Input,
-  InputNumber,
   Label,
-  LabelFormItem,
-  Loader,
-  Modal,
   Table,
-  SideBySide,
 } from '../ui';
 import { 
   BorderBottom,
@@ -36,7 +28,9 @@ export const BuyerOrderList = () => {
       url: `api/user-data/rent-orders/{id}/finish`,
       method: 'POST'
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      message.success(`You succesfully stopped sharing ${response.data?.rentItem}`)
+
       refetch()
       refetchOrders()
     }
@@ -59,8 +53,12 @@ export const BuyerOrderList = () => {
       key: 2,
       dataIndex: 'status',
       title: 'Status',
-      render: (status) => (
-        <Color className={status === 'Done' ? 'green' : 'yellow'}>
+      render: (status, order) => dayjs(order.endTime) > dayjs() ? (
+        <Color className="yellow">
+          In Use
+        </Color>
+      ) : (
+        <Color className={status === 'Done' ? 'green' : 'red'}>
           {status}
         </Color>
       )
@@ -69,13 +67,13 @@ export const BuyerOrderList = () => {
       key: 3,
       dataIndex: 'startTime',
       title: 'Start time',
-      render: (date) => dayjs(date).format('DD-MM-YYYY HH:MM')
+      render: (date) => dayjs(date).format('DD-MM-YYYY HH:mm:ss')
     },
     {
       key: 4,
       dataIndex: 'endTime',
       title: 'End time',
-      render: (date) => date ? dayjs(date).format('DD-MM-YYYY HH:MM') : '-'
+      render: (date) => date ? dayjs(date).format('DD-MM-YYYY HH:mm:ss') : '-'
     },
     {
       key: 5,

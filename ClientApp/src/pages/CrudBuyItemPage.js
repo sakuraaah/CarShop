@@ -82,6 +82,7 @@ export const CrudBuyItemPage = () => {
         url={'buy-item'}
         apiUrl={'api/buy-items'}
         name={'Vehicle'}
+        type={'Product'}
         parseFormToSubmit={parseFormToSubmit}
         parseResponseToForm={parseResponseToForm}
         disabled={disabled}

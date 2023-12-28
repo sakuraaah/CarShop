@@ -2,11 +2,14 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Button, 
+  DatePicker,
   Form, 
   Label,
   LabelFormItem,
   Loader,
   Input,
+  Modal,
+  Popconfirm
 } from '../../ui';
 import { 
   ButtonList,
@@ -15,7 +18,7 @@ import {
   StyledWrapper,
 } from '../../styles/layout/form';
 import useQueryApiClient from '../../utils/useQueryApiClient';
-import { message } from 'antd';
+import { message, Form as AntdForm } from 'antd';
 import dayjs from 'dayjs';
 import { UserDataContext } from '../../contexts/UserDataProvider'
 
@@ -24,6 +27,7 @@ export const CrudForm = ({
   url,
   apiUrl,
   name,
+  type,
   parseResponseToForm,
   parseFormToSubmit,
   disabled,
@@ -36,13 +40,18 @@ export const CrudForm = ({
 
   const [labelPrefix, setLabelPrefix] = useState('')
   const [seller, setSeller] = useState('')
+  const [rentCategory, setRentCategory] = useState()
   const [status, setStatus] = useState('')
   const [adminStatus, setAdminStatus] = useState('')
   const [adminComment, setAdminComment] = useState('')
   const [created, setCreated] = useState('')
   const [availableStatusTransitions, setAvailableStatusTransitions] = useState([])
 
+  const [isRentModalOpened, setIsRentModalOpened] = useState(false)
+
   const { data: userData } = useContext(UserDataContext)
+
+  const [rentForm] = AntdForm.useForm()
 
   useEffect(() => {
     if (id) {
@@ -106,6 +115,7 @@ export const CrudForm = ({
 
       setStatus(response.data?.status)
       setSeller(response.data?.user?.userName)
+      setRentCategory(response.data?.rentCategory?.name)
       setAdminStatus(response.data?.adminStatus)
       setAdminComment(response.data?.adminComment)
       setCreated(dayjs(response.data?.created).format('DD-MM-YYYY'))
@@ -132,7 +142,8 @@ export const CrudForm = ({
       url: `${apiUrl}/${id}`,
       method: 'PATCH'
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      setRentCategory(response.data?.rentCategory?.name)
       message.success(`${name} is succesfully updated`)
     }
   });
@@ -152,6 +163,49 @@ export const CrudForm = ({
       setAdminStatus(response.data?.adminStatus)
       setAdminComment(response.data?.adminComment)
       setAvailableStatusTransitions(response.data?.availableStatusTransitions)
+    }
+  });
+
+  const { refetch: buyVehicle, isLoading: buyVehicleLoading } = useQueryApiClient({
+    request: {
+      url: `${apiUrl}/${id}/buy`,
+      method: 'POST'
+    },
+    onSuccess: (response) => {
+      const vehicleName = (response.data?.mark.name !== 'Other') ? `${response.data?.mark.name} ${response.data?.model}` : response.data?.model
+      message.success(`Vehicle ${vehicleName} is succesfully bought`)
+
+      setStatus(response.data?.status)
+
+      navigate('/profile/bought-vehicles')
+    }
+  });
+
+  const { refetch: shareVehicle, isLoading: shareVehicleLoading } = useQueryApiClient({
+    request: {
+      url: `${apiUrl}/${id}/rent-carsharing`,
+      method: 'POST'
+    },
+    onSuccess: (response) => {
+      message.success(`You succesfully started sharing ${response.data?.rentItem}`)
+
+      setStatus('Busy')
+
+      navigate('/profile/rent-orders')
+    }
+  });
+
+  const { appendData: rentVehicle, isLoading: rentVehicleLoading } = useQueryApiClient({
+    request: {
+      url: `${apiUrl}/${id}/rent-daily`,
+      method: 'POST'
+    },
+    onSuccess: (response) => {
+      message.success(`You succesfully rented ${response.data?.rentItem} till ${dayjs(response.data?.endTime).format('DD-MM-YYYY')}`)
+
+      setStatus('Busy')
+
+      navigate('/profile/rent-orders')
     }
   });
 
@@ -181,6 +235,13 @@ export const CrudForm = ({
             />
           }
 
+          {rentCategory &&
+            <LabelFormItem 
+              label={'Rental category'} 
+              labelValue={rentCategory}
+            />
+          }
+
           {created &&
             <LabelFormItem 
               label={'Created'} 
@@ -203,12 +264,98 @@ export const CrudForm = ({
           }
         </FormHeader>
 
-        <Loader loading={createLoading || getLoading || updateLoading || updateStatusLoading} >
+        <Loader loading={createLoading || getLoading || updateLoading || updateStatusLoading || buyVehicleLoading || shareVehicleLoading || rentVehicleLoading} >
 
           {children}
 
           <StyledWrapper>
             <ButtonList>
+
+              {(userData?.role == 'Buyer') && (
+                <>
+                  {(type == 'Product' && status == 'Submitted') && (
+                    <Popconfirm
+                      title="Buy a vehicle"
+                      description="Are you sure you want to proceed?"
+                      onConfirm={buyVehicle}
+                      okButtonProps={{
+                        disabled: false
+                      }}
+                      cancelButtonProps={{
+                        disabled: false
+                      }}
+                    >
+                      <Button 
+                        label={'Buy'}
+                        type="primary"
+                        disabled={false}
+                      />
+                    </Popconfirm>
+                  )}
+
+                  {(type == 'Rental' && rentCategory == 'Carsharing') && (
+                    <Popconfirm
+                      title="Start sharing a car"
+                      description="Are you sure you want to proceed?"
+                      onConfirm={shareVehicle}
+                      okButtonProps={{
+                        disabled: (status != 'Submitted')
+                      }}
+                      cancelButtonProps={{
+                        disabled: (status != 'Submitted')
+                      }}
+                    >
+                      <Button 
+                        label={'Rent'}
+                        type="primary"
+                        disabled={status != 'Submitted'}
+                      />
+                    </Popconfirm>
+                  )}
+
+                  {(type == 'Rental' && rentCategory == 'Daily') && (
+                    <>
+                      <Button 
+                        label={'Rent'}
+                        type="primary"
+                        onClick={() => setIsRentModalOpened(true)} 
+                        disabled={status != 'Submitted'}
+                      />
+                      <Modal 
+                        title="Rent a vehicle" 
+                        open={isRentModalOpened} 
+                        onOk={async () => {
+                          try {
+                            const fields = await rentForm.validateFields()
+                            rentVehicle({
+                              endDate: dayjs(fields.endDate).format('YYYY-MM-DD')
+                            })
+                            
+                            rentForm.resetFields()
+                            setIsRentModalOpened(false)
+                          } catch (e) {
+                            console.error(e)
+                          }
+                        }} 
+                        onCancel={() => {
+                          rentForm.resetFields()
+                          setIsRentModalOpened(false)
+                        }}
+                      >
+                        <Form form={rentForm}>
+                          <DatePicker
+                            name="endDate"
+                            label={'Date'}
+                            disabled={false}
+                            disabledDate={(date) => date < dayjs().subtract(1, 'day')}
+                            rules={[{ required: true }]}
+                          />
+                        </Form>
+                      </Modal>
+                    </>
+                  )}
+                </>
+              )}
 
               {(!id || seller == userData?.userName) && (
                 <>
@@ -237,13 +384,24 @@ export const CrudForm = ({
                     }
 
                     return (
-                      <Button 
-                        htmlType="submit" 
-                        onClick={() => onSubmit(status.name)} 
-                        label={statusName} 
-                        disabled={false}
-                        danger={status.name === 'Cancelled'}
-                      />
+                      <Popconfirm
+                        title="Change status"
+                        description="Are you sure you want to change status?"
+                        onConfirm={() => onSubmit(status.name)}
+                        okButtonProps={{
+                          disabled: false
+                        }}
+                        cancelButtonProps={{
+                          disabled: false
+                        }}
+                      >
+                        <Button 
+                          htmlType="submit"
+                          label={statusName} 
+                          disabled={false}
+                          danger={status.name === 'Cancelled'}
+                        />
+                      </Popconfirm>
                     )
                   })}
                 </>
@@ -256,18 +414,42 @@ export const CrudForm = ({
                     label={'Provide a comment to seller'}
                     disabled={status != 'Submitted'}
                   />
-                  <Button 
-                    onClick={() => onSubmit('Confirmed')} 
-                    label={'Approve'} 
-                    disabled={status != 'Submitted'}
-                    type="primary"
-                  />
-                  <Button 
-                    onClick={() => onSubmit('Blocked')} 
-                    label={'Block'} 
-                    disabled={status != 'Submitted'}
-                    danger
-                  />
+
+                  <Popconfirm
+                    title="Change status"
+                    description="Are you sure you want to change status?"
+                    onConfirm={() => onSubmit('Confirmed')}
+                    okButtonProps={{
+                      disabled: (status != 'Submitted')
+                    }}
+                    cancelButtonProps={{
+                      disabled: (status != 'Submitted')
+                    }}
+                  >
+                    <Button 
+                      label={'Approve'} 
+                      disabled={status != 'Submitted'}
+                      type="primary"
+                    />
+                  </Popconfirm>
+
+                  <Popconfirm
+                    title="Change status"
+                    description="Are you sure you want to change status?"
+                    onConfirm={() => onSubmit('Blocked')}
+                    okButtonProps={{
+                      disabled: (status != 'Submitted')
+                    }}
+                    cancelButtonProps={{
+                      disabled: (status != 'Submitted')
+                    }}
+                  >
+                    <Button 
+                      label={'Block'} 
+                      disabled={status != 'Submitted'}
+                      danger
+                    />
+                  </Popconfirm>
                 </>
               )}
 

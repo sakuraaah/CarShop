@@ -112,6 +112,7 @@ export const CrudRentItemPage = () => {
         url={'rent-item'}
         apiUrl={'api/rent-items'}
         name={'Rent item'}
+        type={'Rental'}
         parseFormToSubmit={parseFormToSubmit}
         parseResponseToForm={parseResponseToForm}
         disabled={disabled}
