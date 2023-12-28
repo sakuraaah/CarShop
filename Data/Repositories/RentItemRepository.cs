@@ -13,7 +13,7 @@ namespace CarShop.Data
             return _context.RentItems;
         }
 
-        public RentItemListResponseDto GetList(RentItemQueryDto query, string userRole = "Buyer")
+        public RentItemListResponseDto GetList(RentItemQueryDto query, string userRole = "Public")
         {
             IQueryable<RentItem> rentItemQuery = GetAll()
                 .Include(x => x.User)
@@ -109,10 +109,11 @@ namespace CarShop.Data
 
             switch (userRole)
             {
-                case "Buyer":
+                case "Public":
                     rentItemQuery = rentItemQuery
                         .Where(x => x.Status.Equals("Submitted"))
-                        .Where(x => x.AdminStatus != "Blocked");
+                        .Where(x => x.AdminStatus != "Blocked")
+                        .Where(x => x.BusyTill == null || x.BusyTill < DateTime.Now);
                     break;
 
                 case "Seller":
@@ -191,9 +192,10 @@ namespace CarShop.Data
             return rentItemResponseDto;
         }
 
-        public RentItem? Get(int id, ApplicationUser? user)
+        public RentItem? Get(int id, ApplicationUser? user, string userRole = "Buyer")
         {
             IQueryable<RentItem> rentItemQuery = GetAll()
+                .Include(x => x.User)
                 .Include(x => x.Category)
                 .Include(x => x.Mark)
                 .Include(x => x.BodyType)
@@ -201,22 +203,34 @@ namespace CarShop.Data
                 .Include(x => x.RentCategory)
                 .Include(x => x.CarClass)
                 .Include(x => x.Features)
-                .Include(x => x.AvailableStatusTransitions)
-                .Where(x => x.Id.Equals(id));
+                .Include(x => x.AvailableStatusTransitions);
 
-            if (user != null)
+            switch (userRole)
             {
-                rentItemQuery = rentItemQuery.Where(x => x.User.Equals(user));
-            }
-            else
-            {
-                rentItemQuery = rentItemQuery.Where(x => x.Status != "Draft");
+                case "Buyer":
+                    rentItemQuery = rentItemQuery
+                        .Where(x => x.Status.Equals("Submitted") || x.Status.Equals("Busy"))
+                        .Where(x => x.AdminStatus != "Blocked");
+                    break;
+
+                case "Seller":
+                    rentItemQuery = rentItemQuery.Where(x => x.User.Equals(user));
+                    break;
+
+                case "Admin":
+                    rentItemQuery = rentItemQuery.Where(x => x.Status != "Draft");
+                    break;
+
+                default:
+                    break;
             }
 
-            return rentItemQuery.FirstOrDefault();
+            return rentItemQuery
+                .Where(x => x.Id.Equals(id))
+                .FirstOrDefault();
         }
 
-        public RentItemResponseDto? GetItem(int id, ApplicationUser? user, string userRole = "Buyer")
+        public RentItemResponseDto? GetItem(int id, ApplicationUser? user, string userRole = "Public")
         {
             IQueryable<RentItem> rentItemQuery = GetAll()
                 .Include(x => x.User)
@@ -232,9 +246,9 @@ namespace CarShop.Data
 
             switch (userRole)
             {
-                case "Buyer":
+                case "Public":
                     rentItemQuery = rentItemQuery
-                        .Where(x => x.Status.Equals("Submitted"))
+                        .Where(x => x.Status.Equals("Submitted") || x.Status.Equals("Busy"))
                         .Where(x => x.AdminStatus != "Blocked");
                     break;
 

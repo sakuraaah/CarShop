@@ -32,7 +32,7 @@ namespace CarShop.Dtos
             CarClass = rentItem.CarClass.Name;
             RentCategory = rentItem.RentCategory.Name;
             Price = rentItem.Price;
-            Status = rentItem.Status;
+            Status = (rentItem.BusyTill != null && rentItem.BusyTill >= DateTime.Now) ? "Busy" : rentItem.Status;
             if (!string.IsNullOrWhiteSpace(rentItem.AdminStatus))
             {
                 AdminStatus = rentItem.AdminStatus;

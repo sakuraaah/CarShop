@@ -354,6 +354,8 @@ namespace CarShop.Controllers
                     var buyItem = _buyItemRepository.Get(id, curUser, "Seller");
                     if (buyItem == null) throw new Exception("Buy item not found");
 
+                    if (buyItem.Status == "Sold") throw new Exception("You cannot update sold items");
+
                     if (buyItem.AdminStatus == "Blocked") throw new Exception("You cannot update blocked item");
 
                     var newStatus = buyItem.AvailableStatusTransitions.Find(x => x.Name.Equals(dto.Status));
@@ -392,6 +394,8 @@ namespace CarShop.Controllers
                 {
                     var buyItem = _buyItemRepository.Get(id, null, "Admin");
                     if (buyItem == null) throw new Exception("Buy item not found");
+
+                    if (buyItem.Status == "Sold") throw new Exception("You cannot update sold items");
 
                     if (buyItem.Status != "Submitted") throw new Exception("You can only update submitted buy items");
 

@@ -9,6 +9,7 @@ import { CrudRentItemPage } from "./pages/CrudRentItemPage";
 import { RentItemList } from "./pages/RentItemList";
 import { RentItemSellerList } from "./pages/RentItemSellerList";
 import { RentItemAdminList } from "./pages/RentItemAdminList";
+import { BuyerOrderList } from "./pages/BuyerOrderList";
 
 import { CrudBuyItemPage } from "./pages/CrudBuyItemPage";
 import { BuyItemList } from "./pages/BuyItemList";
@@ -79,6 +80,11 @@ const AppRoutes = [
     path: '/admin/rental',
     requireAuth: true,
     element: <RentItemAdminList />
+  },
+  {
+    path: '/profile/rent-orders',
+    requireAuth: true,
+    element: <BuyerOrderList />
   },
 
   {

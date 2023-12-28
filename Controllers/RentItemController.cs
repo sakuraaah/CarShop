@@ -22,6 +22,8 @@ namespace CarShop.Controllers
         private readonly ICarClassRepository _carClassRepository;
         private readonly IRentCategoryRepository _rentCategoryRepository;
         private readonly IFeatureRepository _featureRepository;
+        private readonly ITransactionRepository _transactionRepository;
+        private readonly IRentOrderRepository _rentOrderRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public RentItemController(
@@ -33,6 +35,8 @@ namespace CarShop.Controllers
             ICarClassRepository carClassRepository,
             IRentCategoryRepository rentCategoryRepository,
             IFeatureRepository featureRepository,
+            ITransactionRepository transactionRepository,
+            IRentOrderRepository rentOrderRepository,
             UserManager<ApplicationUser> userManager
             )
         {
@@ -44,6 +48,8 @@ namespace CarShop.Controllers
             _carClassRepository = carClassRepository;
             _rentCategoryRepository = rentCategoryRepository;
             _featureRepository = featureRepository;
+            _transactionRepository = transactionRepository;
+            _rentOrderRepository = rentOrderRepository;
             _userManager = userManager;
         }
 
@@ -161,7 +167,17 @@ namespace CarShop.Controllers
                         AvailableStatusTransitions = availableStatusTransitions,
                     };
 
-                    return _rentItemRepository.Create(rentItem);
+                    var createdRentItem = _rentItemRepository.Create(rentItem);
+
+                    string[] rentSubmissionStatusNames = { };
+                    List<Status> rentSubmissionAvailableStatusTransitions = _statusRepository.GetByName(rentSubmissionStatusNames).ToList();
+
+                    rentSubmission.Status = "Used";
+                    rentSubmission.AvailableStatusTransitions = rentSubmissionAvailableStatusTransitions;
+
+                    _rentSubmissionRepository.Update(rentSubmission);
+
+                    return createdRentItem;
                 });
                 return Ok(response);
             }
@@ -226,7 +242,7 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var rentItem = _rentItemRepository.Get(id, curUser);
+                    var rentItem = _rentItemRepository.Get(id, curUser, "Seller");
                     if (rentItem == null) throw new Exception("Buy item not found");
 
                     if (rentItem.Status != "Draft") throw new Exception("Only drafts can be edited");
@@ -294,9 +310,11 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var rentItem = _rentItemRepository.Get(id, curUser);
+                    var rentItem = _rentItemRepository.Get(id, curUser, "Seller");
                     if (rentItem == null) throw new Exception("Rent item not found");
 
+                    if (rentItem.Status == "Busy" || (rentItem.BusyTill != null && rentItem.BusyTill >= DateTime.Now )) throw new Exception("You cannot update items that are currently in use");
+                    
                     if (rentItem.AdminStatus == "Blocked") throw new Exception("You cannot update blocked item");
 
                     var newStatus = rentItem.AvailableStatusTransitions.Find(x => x.Name.Equals(dto.Status));
@@ -333,8 +351,10 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var rentItem = _rentItemRepository.Get(id, null);
+                    var rentItem = _rentItemRepository.Get(id, null, "Admin");
                     if (rentItem == null) throw new Exception("Rent item not found");
+
+                    if (rentItem.Status == "Busy" || (rentItem.BusyTill != null && rentItem.BusyTill >= DateTime.Now )) throw new Exception("You cannot update items that are currently in use");
 
                     if (rentItem.Status != "Submitted") throw new Exception("You can only update submitted rent items");
 
@@ -355,6 +375,118 @@ namespace CarShop.Controllers
             return Forbid();
         }
 
+        [HttpPost("{id}/rent-carsharing")]
+        public async Task<IActionResult> RentCarsharing(int id)
+        {
+            var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var curUser = await _userManager.FindByIdAsync(currentUserID);
+            if (curUser == null) throw new Exception("User not found");
+
+            if (await _userManager.IsInRoleAsync(curUser, "Buyer"))
+            {
+                var response = new ApiResponseDto(() =>
+                {
+                    var rentItem = _rentItemRepository.Get(id, null, "Buyer");
+                    if (rentItem == null) throw new Exception("Rent item not found");
+
+                    if (rentItem.Status == "Busy" || (rentItem.BusyTill != null && rentItem.BusyTill >= DateTime.Now)) throw new Exception("This rental is currently in use");
+
+                    if (rentItem.RentCategory.Name != "Carsharing") throw new Exception("Wrong rental category. Vehicle must be of type: Carsharing");
+
+                    decimal curUserbalance = _transactionRepository.GetBalance(curUser);
+
+                    if (curUserbalance < (rentItem.Price * 30)) throw new Exception("Insufficient funds. Your balance must be able to cover at least 30min of the ride");
+
+                    rentItem.Status = "Busy";
+                    _rentItemRepository.Update(rentItem);
+
+                    var carsharingRentOrder = new RentOrder
+                    {
+                        User = curUser,
+                        Status = "Pending",
+                        RentItemId = rentItem.Id
+                    };
+
+                    return _rentOrderRepository.Create(carsharingRentOrder);
+                });
+                return Ok(response);
+            }
+
+            return Forbid();
+        }
+
+        [HttpPost("{id}/rent-daily")]
+        public async Task<IActionResult> RentDaily(int id, [FromBody] RentDurationDto dto)
+        {
+            var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var curUser = await _userManager.FindByIdAsync(currentUserID);
+            if (curUser == null) throw new Exception("User not found");
+
+            if (await _userManager.IsInRoleAsync(curUser, "Buyer"))
+            {
+                var response = new ApiResponseDto(() =>
+                {
+                    var rentItem = _rentItemRepository.Get(id, null, "Buyer");
+                    if (rentItem == null) throw new Exception("Rent item not found");
+
+                    if (rentItem.Status == "Busy" || (rentItem.BusyTill != null && rentItem.BusyTill >= DateTime.Now)) throw new Exception("This rental is currently in use");
+
+                    if (rentItem.RentCategory.Name != "Daily") throw new Exception("Wrong rental category. Vehicle must be of type: Daily");
+
+                    decimal curUserbalance = _transactionRepository.GetBalance(curUser);
+
+                    if (dto == null) throw new Exception("Please provide rent due date");
+
+                    DateTime endDate = dto.EndDate.AddDays(1);
+
+                    if (endDate < DateTime.Now) throw new Exception("Rent ending time must be in the future");
+
+                    TimeSpan difference = endDate - DateTime.Now;
+                    int daysDifference = (int)Math.Ceiling(difference.TotalDays);
+
+                    decimal totalPrice = rentItem.Price * daysDifference;
+
+                    if (curUserbalance < totalPrice) throw new Exception("Insufficient funds");
+
+                    string formattedAmount = totalPrice.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("de-DE"));
+                    string vehicleTitle = rentItem.Mark.Name != "Other" ? rentItem.Mark.Name + " " + rentItem.Model : rentItem.Model;
+
+                    var buyerTransaction = new Transaction
+                    {
+                        User = curUser,
+                        Amount = totalPrice * -1,
+                        Description = "Rented " + vehicleTitle + " on " + daysDifference + " day (-s) for " + formattedAmount,
+                    };
+
+                    var sellerTransaction = new Transaction
+                    {
+                        User = rentItem.User,
+                        Amount = totalPrice,
+                        Description = "Customer rented " + vehicleTitle + " on " + daysDifference + " day (-s) for " + formattedAmount,
+                    };
+
+                    _transactionRepository.Create(buyerTransaction);
+                    _transactionRepository.Create(sellerTransaction);
+
+                    rentItem.BusyTill = endDate;
+                    _rentItemRepository.Update(rentItem);
+
+                    var rentOrder = new RentOrder
+                    {
+                        User = curUser,
+                        Status = "Done",
+                        EndTime = endDate,
+                        RentItemId = rentItem.Id
+                    };
+
+                    return _rentOrderRepository.Create(rentOrder);
+                });
+                return Ok(response);
+            }
+
+            return Forbid();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -366,7 +498,7 @@ namespace CarShop.Controllers
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    var rentItem = _rentItemRepository.Get(id, null);
+                    var rentItem = _rentItemRepository.Get(id, null, "Admin");
                     if (rentItem == null) throw new Exception("Rent item not found");
 
                     _rentItemRepository.Delete(rentItem);

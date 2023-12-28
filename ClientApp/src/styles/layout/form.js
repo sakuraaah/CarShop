@@ -113,9 +113,13 @@ export const ButtonList = styled.div`
   }
 `;
 
-export const Color = styled.p`
+export const Color = styled.span`
   &.green {
     color: #52c41a;
+  }
+
+  &.yellow {
+    color: #faad14;
   }
 
   &.red {

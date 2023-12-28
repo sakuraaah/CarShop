@@ -99,19 +99,14 @@ export const ProfilePage = () => {
 
   const transactionColumns = [
     {
-      dataIndex: 'id',
-      key: 'id',
-      title: 'Id'
-    },
-    {
+      key: 1,
       dataIndex: 'created',
-      key: 'created',
       title: 'Date',
       render: (date) => dayjs(date).format('DD-MM-YYYY')
     },
     {
+      key: 2,
       dataIndex: 'amount',
-      key: 'amount',
       title: 'Amount',
       render: (amount) => (
         <Color className={amount > 0 ? 'green' : 'red'}>
@@ -123,8 +118,8 @@ export const ProfilePage = () => {
       )
     },
     {
+      key: 3,
       dataIndex: 'description',
-      key: 'description',
       title: 'Details'
     }
   ]

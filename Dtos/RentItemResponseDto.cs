@@ -64,7 +64,7 @@ namespace CarShop.Dtos
             RentCategory = rentItem.RentCategory;
             CarClassId = rentItem.CarClassId;
             CarClass = rentItem.CarClass;
-            Status = rentItem.Status;
+            Status = (rentItem.BusyTill != null && rentItem.BusyTill >= DateTime.Now) ? "Busy" : rentItem.Status;
             AvailableStatusTransitions = rentItem.AvailableStatusTransitions;
             AdminStatus = rentItem.AdminStatus;
             AdminComment = rentItem.AdminComment;

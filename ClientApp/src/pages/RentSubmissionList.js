@@ -67,19 +67,25 @@ export const RentSubmissionList = () => {
   const renderAction = (item) => {
     switch (item.adminStatus) {
       case 'Confirmed': 
-        return isAdmin ? (
-            <>This vehicle is confirmed</>
-          ) : (
-            <Button 
-              type="link" 
-              label="Create rental item" 
-              size="small"
-              onClick={() => navigate(`/new-rent-item`, { state: { rentSubmissionId: item.id } })}
-            />
-          )
+        if (isAdmin) {
+          return <>This submission is confirmed</>
+        }
+
+        if (item.status == 'Used') {
+          return <>This submission is already in use</>
+        }
+
+        return (
+          <Button 
+            type="link" 
+            label="Create rental item" 
+            size="small"
+            onClick={() => navigate(`/new-rent-item`, { state: { rentSubmissionId: item.id } })}
+          />
+        )
 
       case 'Blocked': 
-        return <>This vehicle is blocked</>
+        return <>This submission is blocked</>
       
       default: 
         switch (item.status) {
@@ -98,8 +104,11 @@ export const RentSubmissionList = () => {
           case 'Draft':
             return <>Submit this item to administrator to recieve approval</>
 
+          case 'Cancelled':
+            return <>This submission is cancelled</>
+
           default:
-            return <>This vehicle is cancelled</>
+            return <>-</>
         }
     }
   }

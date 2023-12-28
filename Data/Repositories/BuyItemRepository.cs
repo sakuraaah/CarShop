@@ -213,7 +213,9 @@ namespace CarShop.Data
             switch (userRole)
             {
                 case "Buyer":
-                    buyItemQuery = buyItemQuery.Where(x => (x.Status.Equals("Submitted") && x.AdminStatus != "Blocked"));
+                    buyItemQuery = buyItemQuery
+                        .Where(x => x.Status.Equals("Submitted"))
+                        .Where(x => x.AdminStatus != "Blocked");
                     break;
 
                 case "Seller":

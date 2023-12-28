@@ -16,14 +16,20 @@ namespace CarShop.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITransactionRepository _transactionRepository;
+        private readonly IRentOrderRepository _rentOrderRepository;
+        private readonly IRentItemRepository _rentItemRepository;
 
         public UserDataController(
             UserManager<ApplicationUser> userManager,
-            ITransactionRepository transactionRepository
+            ITransactionRepository transactionRepository,
+            IRentOrderRepository rentOrderRepository,
+            IRentItemRepository rentItemRepository
         )
         {
             _userManager = userManager;
             _transactionRepository = transactionRepository;
+            _rentOrderRepository = rentOrderRepository;
+            _rentItemRepository = rentItemRepository;
         }
 
         [HttpGet]
@@ -122,10 +128,81 @@ namespace CarShop.Controllers
 
             var response = new ApiResponseDto(() =>
             {
-                var transactions = _transactionRepository.GetAll(curUser).ToArray();
-                return transactions.ToList();
+                return _transactionRepository.GetList(curUser);
             });
             return Ok(response);
+        }
+
+        [HttpGet("rent-orders")]
+        public async Task<IActionResult> GetRentOrders()
+        {
+            var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var curUser = await _userManager.FindByIdAsync(currentUserID);
+            if (curUser == null) throw new Exception("User not found");
+
+            var response = new ApiResponseDto(() =>
+            {
+                return _rentOrderRepository.GetList(curUser);
+            });
+            return Ok(response);
+        }
+
+        [HttpPost("rent-orders/{id}/finish")]
+        public async Task<IActionResult> FinishRentOrder(int id)
+        {
+            var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var curUser = await _userManager.FindByIdAsync(currentUserID);
+            if (curUser == null) throw new Exception("User not found");
+
+            if (await _userManager.IsInRoleAsync(curUser, "Buyer"))
+            {
+                var response = new ApiResponseDto(() =>
+                {
+                    var rentOrder = _rentOrderRepository.Get(id, curUser);
+                    if (rentOrder == null) throw new Exception("Rent order not found");
+
+                    if (rentOrder.Status != "Pending") throw new Exception("Rent order is already finished");
+
+                    var rentItem = _rentItemRepository.Get(rentOrder.RentItemId, curUser, "Buyer");
+                    if (rentItem == null) throw new Exception("Rent item not found. Please contact administrator");
+
+                    TimeSpan difference = DateTime.Now - rentOrder.StartTime;
+                    int minutesDifference = (int)Math.Ceiling(difference.TotalMinutes);
+
+                    decimal totalPrice = rentItem.Price * minutesDifference;
+
+                    string formattedAmount = totalPrice.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("de-DE"));
+                    string vehicleTitle = rentItem.Mark.Name != "Other" ? rentItem.Mark.Name + " " + rentItem.Model : rentItem.Model;
+
+                    var buyerTransaction = new Transaction
+                    {
+                        User = curUser,
+                        Amount = totalPrice * -1,
+                        Description = "Rented " + vehicleTitle + " on " + minutesDifference + " minute (-s) for " + formattedAmount,
+                    };
+
+                    var sellerTransaction = new Transaction
+                    {
+                        User = rentItem.User,
+                        Amount = totalPrice,
+                        Description = "Customer rented " + vehicleTitle + " on " + minutesDifference + " minute (-s) for " + formattedAmount,
+                    };
+
+                    _transactionRepository.Create(buyerTransaction);
+                    _transactionRepository.Create(sellerTransaction);
+
+                    rentItem.Status = "Submitted";
+                    _rentItemRepository.Update(rentItem);
+
+                    rentOrder.Status = "Done";
+                    rentOrder.EndTime = DateTime.Now;
+
+                    return _rentOrderRepository.Update(rentOrder);
+                });
+                return Ok(response);
+            }
+
+            return Forbid();
         }
 
         [HttpPost("add-money")]
