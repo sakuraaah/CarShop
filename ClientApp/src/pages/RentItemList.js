@@ -53,6 +53,14 @@ export const RentItemList = () => {
     items: [
       [
         {
+          label: 'Rental Category',
+          name: 'RentCategory',
+          type: 'select',
+          apiUrl: 'api/rent-categories'
+        }
+      ],
+      [
+        {
           label: 'Price from',
           name: 'PriceFrom',
           type: 'inputNumber'
