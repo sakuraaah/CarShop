@@ -51,6 +51,7 @@ namespace CarShop.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPublicList([FromQuery] BuyItemQueryDto query)
         {
+            // returns public list that is identical to all users
             var response = new ApiResponseDto(() =>
             {
                 var buyItems = _buyItemRepository.GetList(query, null);
@@ -62,12 +63,15 @@ namespace CarShop.Controllers
         [HttpGet("buyer")]
         public async Task<IActionResult> GetBuyerList([FromQuery] BuyItemQueryDto query)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
+            // continue if it is buyer, otherwise forbid
             if (await _userManager.IsInRoleAsync(curUser, "Buyer"))
             {
+                // returns list that returns only buy items that this buyer bought
                 var response = new ApiResponseDto(() =>
                 {
                     var buyItems = _buyItemRepository.GetList(query, curUser, "Buyer");
@@ -82,12 +86,15 @@ namespace CarShop.Controllers
         [HttpGet("seller")]
         public async Task<IActionResult> GetSellerList([FromQuery] BuyItemQueryDto query)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
+            // continue if it is seller, otherwise forbid
             if (await _userManager.IsInRoleAsync(curUser, "Seller"))
             {
+                // returns list that returns only buy items that belong to this seller
                 var response = new ApiResponseDto(() =>
                 {
                     var buyItems = _buyItemRepository.GetList(query, curUser, "Seller");
@@ -102,12 +109,15 @@ namespace CarShop.Controllers
         [HttpGet("admin")]
         public async Task<IActionResult> GetAdminList([FromQuery] BuyItemQueryDto query)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
+            // continue if it is admin, otherwise forbid
             if (await _userManager.IsInRoleAsync(curUser, "Admin"))
             {
+                // returns list that returns all non-draft buy items
                 var response = new ApiResponseDto(() =>
                 {
                     var buyItems = _buyItemRepository.GetList(query, null, "Admin");
@@ -122,31 +132,40 @@ namespace CarShop.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateBuyItemDto dto)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
+            // continue if it is seller, otherwise forbid
             if (await _userManager.IsInRoleAsync(curUser, "Seller")) 
             {
                 var response = new ApiResponseDto(() =>
                 {
-                    if(_buyItemRepository.Exists(dto.AplNr, dto.RegNr, null)) throw new Exception("Vehicle is already registered");
+                    // check if item with this data is already created
+                    if (_buyItemRepository.Exists(dto.AplNr, dto.RegNr, null)) throw new Exception("Vehicle is already registered");
 
+                    // check if category exists
                     var category = _categoryRepository.Get(dto.CategoryId);
                     if (category == null) throw new Exception("Category not found");
 
+                    // check if mark exists
                     var mark = _markRepository.Get(dto.MarkId);
                     if (mark == null) throw new Exception("Mark not found");
 
+                    // check if body type exists
                     var bodyType = _bodyTypeRepository.Get(dto.BodyTypeId);
                     if (bodyType == null) throw new Exception("Body type not found");
 
+                    // check if color exists
                     var color = _colorRepository.Get(dto.ColorId);
                     if (color == null) throw new Exception("Color not found");
 
+                    // default status will be 'Draft', and available status transitions for 'Draft' are 'Submitted' and 'Cancelled'
                     string[] statusNames = { "Submitted", "Cancelled" };
                     List<Status> availableStatusTransitions = _statusRepository.GetByName(statusNames).ToList();
 
+                    // get all features from dto
                     string[] featureNames = dto.Features.ConvertAll(obj => obj.Name).ToArray();
                     List<Feature> features = _featureRepository.GetByName(featureNames).ToList();
 
@@ -172,6 +191,7 @@ namespace CarShop.Controllers
                         AvailableStatusTransitions = availableStatusTransitions,
                     };
 
+                    // add new buy item to db
                     return _buyItemRepository.Create(buyItem);
                 });
                 return Ok(response);
@@ -184,11 +204,13 @@ namespace CarShop.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
 
             if (curUser == null)
             {
+                // returns item if it is submitted and not blocked
                 var buyItem = _buyItemRepository.GetItem(id, null, "Public");
                 if (buyItem == null) return NotFound();
 
@@ -201,6 +223,7 @@ namespace CarShop.Controllers
 
             if (await _userManager.IsInRoleAsync(curUser, "Buyer"))
             {
+                // returns item if it is bought by this buyer or is submitted and not blocked
                 var buyItem = _buyItemRepository.GetItem(id, curUser, "Buyer");
                 if (buyItem == null) return NotFound();
 
@@ -213,6 +236,7 @@ namespace CarShop.Controllers
 
             if (await _userManager.IsInRoleAsync(curUser, "Seller"))
             {
+                // returns item if it is created by this seller or is submitted and not blocked
                 var buyItem = _buyItemRepository.GetItem(id, curUser, "Seller");
                 if (buyItem == null) return NotFound();
 
@@ -225,6 +249,7 @@ namespace CarShop.Controllers
 
             if (await _userManager.IsInRoleAsync(curUser, "Admin"))
             {
+                // returns item if it is not draft
                 var buyItem = _buyItemRepository.GetItem(id, null, "Admin");
                 if (buyItem == null) return NotFound();
 
@@ -241,19 +266,23 @@ namespace CarShop.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateBuyItemDto dto)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
+            // continue if it is seller, otherwise forbid
             if (await _userManager.IsInRoleAsync(curUser, "Seller"))
             {
                 var response = new ApiResponseDto(() =>
                 {
+                    // returns item only if it belongs to current user 
                     var buyItem = _buyItemRepository.Get(id, curUser, "Seller");
                     if (buyItem == null) throw new Exception("Buy item not found");
 
                     if (buyItem.Status != "Draft") throw new Exception("Only drafts can be edited");
 
+                    // update buy item fields
                     if (!string.IsNullOrEmpty(dto.ImgSrc))
                     {
                         buyItem.ImgSrc = dto.ImgSrc;
@@ -330,8 +359,10 @@ namespace CarShop.Controllers
                         buyItem.EngPower = dto.EngPower.Value;
                     }
 
+                    // check if item with this data is already created
                     if (_buyItemRepository.Exists(buyItem.AplNr, buyItem.RegNr, buyItem.Id)) throw new Exception("Vehicle is already registered");
 
+                    // edit selected buy item in db
                     return _buyItemRepository.Update(buyItem);
                 });
                 return Ok(response);
@@ -343,21 +374,26 @@ namespace CarShop.Controllers
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] StatusUpdateDto dto)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
+            // seller can change buy item status to 'Submitted' or 'Cancelled'
             if (await _userManager.IsInRoleAsync(curUser, "Seller"))
             {
                 var response = new ApiResponseDto(() =>
                 {
+                    // returns buy item only if it belongs to current user 
                     var buyItem = _buyItemRepository.Get(id, curUser, "Seller");
                     if (buyItem == null) throw new Exception("Buy item not found");
 
+                    // check if buy item is not sold or blocked
                     if (buyItem.Status == "Sold") throw new Exception("You cannot update sold items");
 
                     if (buyItem.AdminStatus == "Blocked") throw new Exception("You cannot update blocked item");
 
+                    // check if new status exists in available status transitions
                     var newStatus = buyItem.AvailableStatusTransitions.Find(x => x.Name.Equals(dto.Status));
                     if (newStatus == null) throw new Exception("Incorrect status transition");
 
@@ -380,6 +416,7 @@ namespace CarShop.Controllers
 
                     List<Status> availableStatusTransitions = _statusRepository.GetByName(statusNames).ToList();
 
+                    // set new status and status transitions
                     buyItem.Status = newStatus.Name;
                     buyItem.AvailableStatusTransitions = availableStatusTransitions;
 
@@ -388,23 +425,28 @@ namespace CarShop.Controllers
                 return Ok(response);
             }
 
+            // admin can change rent submission admin status to 'Confirmed' or 'Blocked'
             if (await _userManager.IsInRoleAsync(curUser, "Admin"))
             {
                 var response = new ApiResponseDto(() =>
                 {
+                    // returns item only if it is not draft
                     var buyItem = _buyItemRepository.Get(id, null, "Admin");
                     if (buyItem == null) throw new Exception("Buy item not found");
 
+                    // check if buy item is not sold and is submitted
                     if (buyItem.Status == "Sold") throw new Exception("You cannot update sold items");
 
                     if (buyItem.Status != "Submitted") throw new Exception("You can only update submitted buy items");
 
+                    // check if new status exists and is valid
                     var newStatus = _statusRepository.GetByName(new string[] { dto.Status }).FirstOrDefault();
                     if (newStatus == null) throw new Exception("Status not found");
 
                     string[] adminStatusTransitions = { "Confirmed", "Blocked" };
                     if (!adminStatusTransitions.Contains(newStatus.Name)) throw new Exception("Admin status can only be set to 'Confirmed' or 'Blocked'");
 
+                    // set new admin status and comment
                     buyItem.AdminStatus = newStatus.Name;
                     buyItem.AdminComment = dto.Comment;
 
@@ -419,24 +461,30 @@ namespace CarShop.Controllers
         [HttpPost("{id}/buy")]
         public async Task<IActionResult> Buy(int id)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
+            // continue if it is buyer, otherwise forbid
             if (await _userManager.IsInRoleAsync(curUser, "Buyer"))
             {
                 var response = new ApiResponseDto(() =>
                 {
+                    // returns item only if it is submitted and not blocked and not sold
                     var buyItem = _buyItemRepository.Get(id, curUser, "Buyer");
                     if (buyItem == null) throw new Exception("Buy item not found");
 
+                    // get user balance
                     decimal curUserbalance = _transactionRepository.GetBalance(curUser);
 
+                    // user balance must be higher or equal than buy item price
                     if (curUserbalance < buyItem.Price) throw new Exception("Insufficient funds");
 
                     string formattedAmount = buyItem.Price.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("de-DE"));
                     string vehicleTitle = buyItem.Mark.Name != "Other" ? buyItem.Mark.Name + " " + buyItem.Model : buyItem.Model;
 
+                    // create new transaction from buyer
                     var buyerTransaction = new Transaction
                     {
                         User = curUser,
@@ -444,6 +492,7 @@ namespace CarShop.Controllers
                         Description = "Bought " + vehicleTitle + " for " + formattedAmount,
                     };
 
+                    // create new transaction to seller
                     var sellerTransaction = new Transaction
                     {
                         User = buyItem.User,
@@ -454,9 +503,11 @@ namespace CarShop.Controllers
                     _transactionRepository.Create(buyerTransaction);
                     _transactionRepository.Create(sellerTransaction);
 
+                    // remove all status transitions
                     string[] statusNames = { };
                     List<Status> availableStatusTransitions = _statusRepository.GetByName(statusNames).ToList();
 
+                    // update buyer info and status
                     buyItem.BuyerId = curUser.Id;
                     buyItem.Status = "Sold";
                     buyItem.AvailableStatusTransitions = availableStatusTransitions;
@@ -472,17 +523,21 @@ namespace CarShop.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
+            // continue if it is admin, otherwise forbid
             if (await _userManager.IsInRoleAsync(curUser, "Admin"))
             {
                 var response = new ApiResponseDto(() =>
                 {
+                    // returns item only if it is not draft
                     var buyItem = _buyItemRepository.Get(id, null, "Admin");
                     if (buyItem == null) throw new Exception("Buy item not found");
 
+                    // delete selected buy item
                     _buyItemRepository.Delete(buyItem);
                 });
                 return Ok(response);

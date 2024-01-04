@@ -29,11 +29,13 @@ namespace CarShop.Controllers
 
                 string uploadDir = Path.Combine(_environment.WebRootPath, _uploadsDirectory);
 
+                // create uploads folder if not exists
                 if (!Directory.Exists(uploadDir))
                 {
                     Directory.CreateDirectory(uploadDir);
                 }
 
+                // create image file based on image title and upload folder
                 using (FileStream fileStream = System.IO.File.Create(uploadDir + "\\" + objFile.imgSrc.FileName))
                 {
                     objFile.imgSrc.CopyTo(fileStream);
@@ -51,14 +53,17 @@ namespace CarShop.Controllers
             {
                 if (string.IsNullOrWhiteSpace(imageName)) throw new Exception("No image source found");
 
+                // get image path
                 string imgFolder = Path.Combine(_uploadsDirectory, imageName);
                 string imgPath = Path.Combine(_environment.WebRootPath, imgFolder);
 
+                // if image file is not found
                 if (!System.IO.File.Exists(imgPath))
                 {
                     return NotFound();
                 }
 
+                // return image file
                 var imageFileStream = System.IO.File.OpenRead(imgPath);
                 return File(imageFileStream, "image/jpeg");
             }

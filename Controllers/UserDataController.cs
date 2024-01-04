@@ -35,13 +35,16 @@ namespace CarShop.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
+            // get current user role
             var roles = await _userManager.GetRolesAsync(curUser);
             string role = roles.Any() ? roles[0] : "";
 
+            // get user balance by summarizing all of his transactions
             decimal balance = _transactionRepository.GetBalance(curUser);
 
             var response = new ApiResponseDto(() =>
@@ -55,17 +58,21 @@ namespace CarShop.Controllers
         [HttpGet("user")]
         public async Task<IActionResult> GetForAdmin([FromQuery] string userName)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
             if (await _userManager.IsInRoleAsync(curUser, "Admin"))
             {
+                // get user from username from query
                 var requestedUser = await _userManager.FindByEmailAsync(userName);
 
+                // get requested user role
                 var roles = await _userManager.GetRolesAsync(requestedUser);
                 string role = roles.Any() ? roles[0] : "";
 
+                // get requested user balance
                 decimal balance = _transactionRepository.GetBalance(curUser);
 
                 var response = new ApiResponseDto(() =>
@@ -85,15 +92,19 @@ namespace CarShop.Controllers
         [HttpPatch]
         public async Task<IActionResult> Update([FromBody] UpdateUserDto dto)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
+            // get current user role
             var roles = await _userManager.GetRolesAsync(curUser);
             string role = roles.Any() ? roles[0] : "";
 
+            // get user balance
             decimal balance = _transactionRepository.GetBalance(curUser);
 
+            // update fields, replacing them with data from dto
             if (!string.IsNullOrWhiteSpace(dto.FirstName))
             {
                 curUser.FirstName = dto.FirstName;
@@ -122,12 +133,14 @@ namespace CarShop.Controllers
         [HttpGet("transactions")]
         public async Task<IActionResult> GetTransactions()
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
             var response = new ApiResponseDto(() =>
             {
+                // get current user transactions
                 return _transactionRepository.GetList(curUser);
             });
             return Ok(response);
@@ -136,12 +149,14 @@ namespace CarShop.Controllers
         [HttpGet("rent-orders")]
         public async Task<IActionResult> GetRentOrders()
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
             var response = new ApiResponseDto(() =>
             {
+                // get current user rental orders
                 return _rentOrderRepository.GetList(curUser);
             });
             return Ok(response);
@@ -150,30 +165,37 @@ namespace CarShop.Controllers
         [HttpPost("rent-orders/{id}/finish")]
         public async Task<IActionResult> FinishRentOrder(int id)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
 
+            // continue if it is buyer, otherwise forbid
             if (await _userManager.IsInRoleAsync(curUser, "Buyer"))
             {
                 var response = new ApiResponseDto(() =>
                 {
+                    // returns rentorder only if it belongs to current user
                     var rentOrder = _rentOrderRepository.Get(id, curUser);
                     if (rentOrder == null) throw new Exception("Rent order not found");
 
                     if (rentOrder.Status != "Pending") throw new Exception("Rent order is already finished");
 
+                    // get rent item from rent order data
                     var rentItem = _rentItemRepository.Get(rentOrder.RentItemId, curUser, "Buyer");
                     if (rentItem == null) throw new Exception("Rent item not found. Please contact administrator");
 
+                    // get total ride time in minutes
                     TimeSpan difference = DateTime.Now - rentOrder.StartTime;
                     int minutesDifference = (int)Math.Ceiling(difference.TotalMinutes);
 
+                    // calculate price, multiplying total minutes with price per minute
                     decimal totalPrice = rentItem.Price * minutesDifference;
 
                     string formattedAmount = totalPrice.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("de-DE"));
                     string vehicleTitle = rentItem.Mark.Name != "Other" ? rentItem.Mark.Name + " " + rentItem.Model : rentItem.Model;
 
+                    // create new transaction from buyer
                     var buyerTransaction = new Transaction
                     {
                         User = curUser,
@@ -181,6 +203,7 @@ namespace CarShop.Controllers
                         Description = "Rented " + vehicleTitle + " on " + minutesDifference + " minute (-s) for " + formattedAmount,
                     };
 
+                    // create new transaction to seller
                     var sellerTransaction = new Transaction
                     {
                         User = rentItem.User,
@@ -191,9 +214,11 @@ namespace CarShop.Controllers
                     _transactionRepository.Create(buyerTransaction);
                     _transactionRepository.Create(sellerTransaction);
 
+                    // change rent item status from 'Busy' to 'Submitted', so that other buyers can rent it
                     rentItem.Status = "Submitted";
                     _rentItemRepository.Update(rentItem);
 
+                    // change rent order status to 'Done' and add end time
                     rentOrder.Status = "Done";
                     rentOrder.EndTime = DateTime.Now;
 
@@ -208,6 +233,7 @@ namespace CarShop.Controllers
         [HttpPost("add-money")]
         public async Task<IActionResult> AddMoney([FromBody] AmountDto dto)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
@@ -218,6 +244,7 @@ namespace CarShop.Controllers
 
                 string formattedAmount = dto.Amount.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("de-DE"));
 
+                // add new transction with selected amount to this user
                 var transaction = new Transaction
                 {
                     User = curUser,
@@ -233,6 +260,7 @@ namespace CarShop.Controllers
         [HttpPost("withdraw-money")]
         public async Task<IActionResult> WithdrawMoney([FromBody] AmountDto dto)
         {
+            // get current user
             var currentUserID = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var curUser = await _userManager.FindByIdAsync(currentUserID);
             if (curUser == null) throw new Exception("User not found");
@@ -243,10 +271,12 @@ namespace CarShop.Controllers
 
                 decimal balance = _transactionRepository.GetBalance(curUser);
 
+                // requested withdraw amount cannot be higher than actual user balance
                 if (balance < dto.Amount) throw new Exception("Insufficient funds");
 
                 string formattedAmount = dto.Amount.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("de-DE"));
 
+                // add new transction with selected amount to this user
                 var transaction = new Transaction
                 {
                     User = curUser,
